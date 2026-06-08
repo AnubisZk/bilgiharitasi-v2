@@ -2,6 +2,7 @@ import anthropic
 import google.generativeai as genai
 import os
 import json
+import re
 from typing import Literal
 
 AIProvider = Literal["claude", "gemini"]
@@ -63,6 +64,7 @@ FEYNMAN_PROMPT = """Sen meraklı bir 10 yaşında çocuksun. Öğrenciden şu ka
 Öğrencinin açıklaması: {aciklama}
 
 Çocuk gibi davranarak anlamadığın yerleri sor, basit bir dille. Türkçe konuş."""
+
 VIZ_SPEC_PROMPT = """Şu kavram için çalışan bir HTML/JavaScript görselleştirme oluştur.
 
 Kavram: {kavram}
@@ -75,14 +77,19 @@ KURALLAR:
 - Animasyon için: requestAnimationFrame kullan
 - Kod direkt body içine yerleştirilecek, çalışır olmalı
 - Türkçe etiketler ekle
+- JavaScript kodunda string içinde tek tırnak kullan, çift tırnak kullanma
 
-JSON olarak döndür (başka hiçbir şey yazma):
-{{"kod": "buraya html/js kodu", "aciklama": "kısa Türkçe açıklama"}}"""
+Şu formatta döndür (JSON):
+{{
+  "kod": "buraya html/js kodu (çift tırnak içinde tek tırnak kullan)",
+  "aciklama": "kısa Türkçe açıklama"
+}}"""
+
 
 async def call_claude(prompt: str, system: str = "") -> str:
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     messages = [{"role": "user", "content": prompt}]
-    kwargs = {"model": "claude-opus-4-5", "max_tokens": 4096, "messages": messages}
+    kwargs = {"model": "claude-haiku-4-5-20251001", "max_tokens": 4096, "messages": messages}
     if system:
         kwargs["system"] = system
     response = client.messages.create(**kwargs)
@@ -101,14 +108,36 @@ async def ai_call(prompt: str, provider: AIProvider = "claude", system: str = ""
         return await call_gemini(prompt)
 
 def safe_json(text: str):
-    """JSON parse, markdown fence'leri temizler."""
     text = text.strip()
-    if text.startswith("```"):
-        text = text.split("```")[1]
-        if text.startswith("json"):
-            text = text[4:]
-    text = text.strip().rstrip("```").strip()
-    return json.loads(text)
+    # markdown fence temizle
+    if "```" in text:
+        parts = text.split("```")
+        for part in parts:
+            p = part.strip()
+            if p.startswith("json"):
+                text = p[4:].strip()
+                break
+            elif p.startswith("{") or p.startswith("["):
+                text = p
+                break
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # geçersiz escape karakterleri düzelt
+        fixed = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', text)
+        try:
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            # son çare: regex ile kod ve aciklama alanlarını çıkar
+            kod = re.search(r'"kod"\s*:\s*"(.*?)",\s*"aciklama"', fixed, re.DOTALL)
+            aciklama = re.search(r'"aciklama"\s*:\s*"(.*?)"\s*}', fixed, re.DOTALL)
+            if kod:
+                return {
+                    "kod": kod.group(1),
+                    "aciklama": aciklama.group(1) if aciklama else ""
+                }
+            raise
 
 async def detect_concepts(text: str, provider: AIProvider = "claude") -> list:
     prompt = CONCEPT_DETECTION_PROMPT.format(text=text[:8000])
