@@ -63,17 +63,21 @@ FEYNMAN_PROMPT = """Sen meraklı bir 10 yaşında çocuksun. Öğrenciden şu ka
 Öğrencinin açıklaması: {aciklama}
 
 Çocuk gibi davranarak anlamadığın yerleri sor, basit bir dille. Türkçe konuş."""
+VIZ_SPEC_PROMPT = """Şu kavram için çalışan bir HTML/JavaScript görselleştirme oluştur.
 
-VIZ_SPEC_PROMPT = """Şu kavram için interaktif bir görselleştirme spec'i oluştur: {kavram}
+Kavram: {kavram}
 Tip: {tip}
 Açıklama: {aciklama}
 
-Eğer tip "formul" ise LaTeX formatında formül ver.
-Eğer tip "grafik" ise Chart.js config ver.
-Eğer tip "animasyon" ise CSS/Canvas animasyon kodu ver.
-Eğer tip "3d_model" ise Three.js sahne kodu ver.
+KURALLAR:
+- Sadece <script> ve <canvas> veya <div> tagları kullan
+- Three.js için: https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js kullan
+- Animasyon için: requestAnimationFrame kullan
+- Kod direkt body içine yerleştirilecek, çalışır olmalı
+- Türkçe etiketler ekle
 
-Sadece JSON döndür: {{"kod": "...", "aciklama": "..."}}"""
+JSON olarak döndür (başka hiçbir şey yazma):
+{{"kod": "buraya html/js kodu", "aciklama": "kısa Türkçe açıklama"}}"""
 
 async def call_claude(prompt: str, system: str = "") -> str:
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
