@@ -33,7 +33,6 @@ export default function ConceptPanel({ concepts, docId, provider }) {
 
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
-      {/* Concept list */}
       <div style={{ width: '320px', borderRight: '1px solid var(--border)', overflow: 'auto', padding: '1rem', background: 'var(--surface)', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.9rem' }}>
           {tips.map(t => (
@@ -74,7 +73,6 @@ export default function ConceptPanel({ concepts, docId, provider }) {
         </div>
       </div>
 
-      {/* Viz panel */}
       <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem', background: 'var(--bg)' }}>
         {!selected ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink3)' }}>
@@ -138,8 +136,8 @@ ${spec.kod || '<p style="padding:2rem;color:#666;">Görselleştirme kodu üretil
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-      <div style={{ padding:'0.6rem 1rem', borderBottom:'1px solid var(--border)', fontFamily:'var(--font-mono)', fontSize:'0.72rem', color:'var(--ink3)', background:'var(--surface2)', display:'flex', justifyContent:'space-between' }}>
-        <span>{tip === '3d_model' ? '⬛ Three.js' : tip === 'animasyon' ? '🎬 Animasyon' : tip === 'formul' ? '∑ Formül' : '📈 Grafik'} — {kavram}</span>
+      <div style={{ padding:'0.6rem 1rem', borderBottom:'1px solid var(--border)', fontFamily:'var(--font-mono)', fontSize:'0.72rem', color:'var(--ink3)', background:'var(--surface2)' }}>
+        {tip === '3d_model' ? '⬛ Three.js' : tip === 'animasyon' ? '🎬 Animasyon' : tip === 'formul' ? '∑ Formül' : '📈 Grafik'} — {kavram}
       </div>
       <iframe
         srcDoc={html}
@@ -152,27 +150,6 @@ ${spec.kod || '<p style="padding:2rem;color:#666;">Görselleştirme kodu üretil
           {spec.aciklama}
         </p>
       )}
-    </div>
-  )
-}
-
-  if ((tip === 'animasyon' || tip === '3d_model') && spec.kod) return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-      <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink3)', background: 'var(--surface2)' }}>
-        {tip === '3d_model' ? '⬛ Three.js' : '🎬 Animasyon'} — {kavram}
-      </div>
-      <iframe
-        srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;background:#fff;color:#1a1814;font-family:system-ui}</style></head><body>${spec.kod}</body></html>`}
-        style={{ width: '100%', height: '380px', border: 'none' }}
-        sandbox="allow-scripts" title={kavram}
-      />
-      {spec.aciklama && <p style={{ padding: '0.9rem 1rem', color: 'var(--ink2)', fontSize: '0.85rem', borderTop: '1px solid var(--border)' }}>{spec.aciklama}</p>}
-    </div>
-  )
-
-  return (
-    <div className="card">
-      <p style={{ color: 'var(--ink2)', lineHeight: 1.6 }}>{spec.aciklama || 'Görselleştirme yüklendi.'}</p>
     </div>
   )
 }
