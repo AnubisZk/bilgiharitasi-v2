@@ -1213,12 +1213,19 @@ const KEYWORD_MAP = [
   { keys: ['dna', 'sarmal', 'nükleotid', 'gen', 'kromatit'], Component: DNAHelix },
   { keys: ['fonksiyon', 'eğri', 'trigonometri', 'sinüs', 'kosinüs'], Component: FunctionPlotter },
   { keys: ['vektör', 'kuvvet alanı', 'manyetik alan', 'elektrik alan'], Component: VectorField },
-  { keys: ['kinetik', 'kinemati', 'mertebe', 'atış', 'parabol', 'projectile'], Component: Kinematics },
+  { keys: ['kinetik', 'kinemati', 'mertebe', 'atış', 'parabol'], Component: Kinematics },
   { keys: ['ohm', 'devre', 'akım', 'direnç', 'gerilim'], Component: OhmCircuit },
-  { keys: ['fotosentez', 'ağaç', 'yaprak', 'klorofil', 'bitki', 'co2'], Component: TreePhotosynthesis },
+  { keys: ['fotosentez', 'ağaç', 'yaprak', 'klorofil', 'bitki'], Component: TreePhotosynthesis },
   { keys: ['güneş panel', 'solar', 'fotovoltaik', 'güneş enerjisi'], Component: SolarPanel },
-  { keys: ['rüzgar türbin', 'rüzgar enerjisi', 'yeldeğirmeni', 'wind'], Component: WindTurbine },
-  { keys: ['hidroelektrik', 'su enerjisi', 'baraj', 'su döngüsü', 'nehir', 'akış'], Component: WaterHydro },
+  { keys: ['rüzgar türbin', 'rüzgar enerjisi', 'yeldeğirmeni'], Component: WindTurbine },
+  { keys: ['hidroelektrik', 'su enerjisi', 'baraj', 'su döngüsü', 'nehir'], Component: WaterHydro },
+  { keys: ['mitoz', 'hücre bölünme', 'mayoz', 'kromozom', 'profaz', 'metafaz'], Component: CellDivision },
+  { keys: ['kan dolaşım', 'kalp', 'damar', 'aort', 'pulmoner', 'sistol'], Component: BloodCirculation },
+  { keys: ['lens', 'kırılma', 'mercek', 'odak', 'konveks', 'konkav', 'optik'], Component: LensRefraction },
+  { keys: ['çarpışma', 'momentum', 'elastik', 'çarpma', 'kinetik enerji korunumu'], Component: Collision },
+  { keys: ['türev', 'teğet', 'diferansiyel', 'eğim', 'limit'], Component: Derivative },
+  { keys: ['sera etkisi', 'küresel ısınma', 'iklim', 'karbon'], Component: GreenhouseEffect },
+  { keys: ['nükleer', 'fisyon', 'füzyon', 'radyoaktif', 'uranyum', 'nötron'], Component: NuclearFission },
 ]
 
 export function AutoViz({ kavram = '', aciklama = '' }) {
@@ -1843,6 +1850,971 @@ export function WaterHydro({ kavram = 'Hidroelektrik / Su Döngüsü', aciklama 
         <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--blue)' }}>
           Güç: {power}%
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 15. HÜCRE BÖLÜNMESİ (MİTOZ) ────────────────────────────────
+export function CellDivision({ kavram = 'Mitoz Bölünme', aciklama }) {
+  const canvasRef = useRef()
+  const [speed, setSpeed] = useState(1)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const phases = ['İnterfaz', 'Profaz', 'Metafaz', 'Anafaz', 'Telofaz', 'Sitokinez']
+    const phaseDur = 80
+
+    function drawCell(cx, cy, rx, ry, color, alpha = 1) {
+      ctx.globalAlpha = alpha
+      ctx.beginPath()
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2)
+      ctx.fillStyle = color
+      ctx.fill()
+      ctx.strokeStyle = '#1e40af'
+      ctx.lineWidth = 2
+      ctx.stroke()
+      ctx.globalAlpha = 1
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'
+      ctx.fillRect(0, 0, W, H)
+      const t = tRef.current * speed
+      const totalCycle = phases.length * phaseDur
+      const cycleT = t % totalCycle
+      const phaseIdx = Math.floor(cycleT / phaseDur)
+      const phaseT = (cycleT % phaseDur) / phaseDur
+      const cx = W / 2, cy = H / 2
+
+      if (phaseIdx === 0) {
+        // İnterfaz - normal hücre, DNA kopyalanıyor
+        drawCell(cx, cy, 90, 70, 'rgba(219,234,254,0.8)')
+        // Çekirdek
+        ctx.beginPath(); ctx.ellipse(cx, cy, 35, 28, 0, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(147,197,253,0.6)'; ctx.fill()
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5; ctx.stroke()
+        // DNA spiral
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2 + t * 0.5
+          ctx.beginPath()
+          ctx.arc(cx + Math.cos(a) * 12, cy + Math.sin(a) * 10, 3, 0, Math.PI * 2)
+          ctx.fillStyle = '#1d4ed8'; ctx.fill()
+        }
+      } else if (phaseIdx === 1) {
+        // Profaz - kromozomlar belirginleşiyor
+        drawCell(cx, cy, 90 + phaseT * 10, 70, 'rgba(219,234,254,0.8)')
+        const chromCount = 6
+        for (let i = 0; i < chromCount; i++) {
+          const a = (i / chromCount) * Math.PI * 2 + phaseT * Math.PI
+          const r = 20 + phaseT * 15
+          ctx.beginPath()
+          ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 6, 0, Math.PI * 2)
+          ctx.fillStyle = `hsl(${220 + i * 20}, 70%, 50%)`; ctx.fill()
+        }
+      } else if (phaseIdx === 2) {
+        // Metafaz - kromozomlar ortada hizalanmış
+        drawCell(cx, cy, 100, 70, 'rgba(219,234,254,0.8)')
+        ctx.setLineDash([4, 4])
+        ctx.strokeStyle = '#93c5fd'; ctx.lineWidth = 1
+        ctx.beginPath(); ctx.moveTo(cx, cy - 60); ctx.lineTo(cx, cy + 60); ctx.stroke()
+        ctx.setLineDash([])
+        const chromCount = 6
+        for (let i = 0; i < chromCount; i++) {
+          const y = cy - 40 + i * 14
+          ctx.beginPath()
+          ctx.ellipse(cx, y, 10, 5, 0, 0, Math.PI * 2)
+          ctx.fillStyle = `hsl(${220 + i * 20}, 70%, 50%)`; ctx.fill()
+        }
+      } else if (phaseIdx === 3) {
+        // Anafaz - kromozomlar ayrılıyor
+        drawCell(cx, cy, 110, 65, 'rgba(219,234,254,0.8)')
+        const sep = phaseT * 40
+        const chromCount = 6
+        for (let i = 0; i < chromCount; i++) {
+          const y = cy - 20 + i * 8
+          ;[-1, 1].forEach(dir => {
+            ctx.beginPath()
+            ctx.ellipse(cx + dir * sep, y, 8, 4, 0, 0, Math.PI * 2)
+            ctx.fillStyle = `hsl(${220 + i * 20}, 70%, 50%)`; ctx.fill()
+          })
+        }
+      } else if (phaseIdx === 4) {
+        // Telofaz - iki çekirdek oluşuyor
+        const sep = 40 + phaseT * 20
+        drawCell(cx, cy, 110, 60, 'rgba(219,234,254,0.6)')
+        ;[-1, 1].forEach(dir => {
+          ctx.beginPath()
+          ctx.ellipse(cx + dir * sep, cy, 28, 22, 0, 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(147,197,253,0.5)'; ctx.fill()
+          ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1; ctx.stroke()
+        })
+      } else {
+        // Sitokinez - hücre ikiye bölünüyor
+        const pinch = phaseT
+        ;[-1, 1].forEach(dir => {
+          const offx = dir * (20 + pinch * 55)
+          drawCell(cx + offx, cy, 55 + pinch * 15, 55 - pinch * 10, 'rgba(219,234,254,0.85)')
+          ctx.beginPath()
+          ctx.ellipse(cx + offx, cy, 20, 16, 0, 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(147,197,253,0.5)'; ctx.fill()
+        })
+        // Boğulma çizgisi
+        if (pinch < 0.8) {
+          ctx.strokeStyle = '#1e40af'; ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.moveTo(cx, cy - 30 * (1 - pinch))
+          ctx.lineTo(cx, cy + 30 * (1 - pinch))
+          ctx.stroke()
+        }
+      }
+
+      // Faz etiketi
+      ctx.fillStyle = '#1e40af'
+      ctx.font = 'bold 14px Lora, Georgia, serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(phases[phaseIdx], cx, 28)
+      ctx.fillStyle = '#6b6560'
+      ctx.font = '11px JetBrains Mono, monospace'
+      ctx.fillText(`${Math.floor(phaseT * 100)}%`, cx, 44)
+
+      // Faz göstergesi
+      phases.forEach((p, i) => {
+        const px = 30 + i * (W - 60) / (phases.length - 1)
+        ctx.beginPath(); ctx.arc(px, H - 20, i === phaseIdx ? 6 : 4, 0, Math.PI * 2)
+        ctx.fillStyle = i === phaseIdx ? '#3d5af1' : '#c7cdfa'; ctx.fill()
+        ctx.fillStyle = i === phaseIdx ? '#3d5af1' : '#a09990'
+        ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'center'
+        ctx.fillText(p.slice(0, 3), px, H - 6)
+      })
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [speed, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>6 Faz</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Hız" min={0.2} max={4} value={speed} onChange={setSpeed} unit="x" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 16. KAN DOLAŞIMI ─────────────────────────────────────────────
+export function BloodCirculation({ kavram = 'Kan Dolaşımı', aciklama }) {
+  const canvasRef = useRef()
+  const [heartRate, setHeartRate] = useState(70)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    const particles = Array.from({ length: 25 }, (_, i) => ({
+      t: i / 25, path: Math.random() > 0.5 ? 'pulm' : 'sys'
+    }))
+
+    function heartbeat(t, bpm) {
+      const period = 60 / bpm
+      const phase = (t % period) / period
+      if (phase < 0.1) return 1 + Math.sin(phase / 0.1 * Math.PI) * 0.15
+      if (phase < 0.2) return 1 + Math.sin((phase - 0.1) / 0.1 * Math.PI) * 0.1
+      return 1
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+      const scale = heartbeat(t, heartRate)
+      const cx = W / 2, cy = H / 2
+
+      // Akciğerler
+      ;[[-1, 1]].forEach(sides => sides.forEach(dir => {
+        const lx = cx + dir * 120, ly = cy - 30
+        ctx.beginPath()
+        ctx.ellipse(lx, ly, 45, 55, dir * 0.2, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(252,165,165,0.3)'
+        ctx.fill(); ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1.5; ctx.stroke()
+        ctx.fillStyle = '#ef4444'; ctx.font = '11px Inter'
+        ctx.textAlign = 'center'
+        ctx.fillText(dir > 0 ? 'Sağ\nAkciğer' : 'Sol\nAkciğer', lx, ly)
+      }))
+
+      // Kalp
+      ctx.save()
+      ctx.translate(cx, cy + 30)
+      ctx.scale(scale, scale)
+      ctx.beginPath()
+      ctx.moveTo(0, 15)
+      ctx.bezierCurveTo(0, 5, -30, -15, -30, -5)
+      ctx.bezierCurveTo(-30, -20, -10, -25, 0, -10)
+      ctx.bezierCurveTo(10, -25, 30, -20, 30, -5)
+      ctx.bezierCurveTo(30, -15, 0, 5, 0, 15)
+      const hg = ctx.createRadialGradient(-8, -8, 2, 0, 0, 30)
+      hg.addColorStop(0, '#f87171'); hg.addColorStop(1, '#dc2626')
+      ctx.fillStyle = hg; ctx.fill()
+      ctx.restore()
+
+      // Damlar (basit)
+      ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 3; ctx.lineCap = 'round'
+      // Pulmoner - mavi (oksijensiz)
+      ctx.beginPath()
+      ctx.moveTo(cx - 18, cy + 10)
+      ctx.quadraticCurveTo(cx - 80, cy - 30, cx - 90, cy - 50)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(cx + 18, cy + 10)
+      ctx.quadraticCurveTo(cx + 80, cy - 30, cx + 90, cy - 50)
+      ctx.stroke()
+
+      ctx.strokeStyle = '#ef4444'
+      // Pulmoner geri dön - kırmızı (oksijenli)
+      ctx.beginPath()
+      ctx.moveTo(cx - 75, cy - 70)
+      ctx.quadraticCurveTo(cx - 40, cy - 80, cx - 15, cy + 5)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(cx + 75, cy - 70)
+      ctx.quadraticCurveTo(cx + 40, cy - 80, cx + 15, cy + 5)
+      ctx.stroke()
+
+      // Sistemik
+      ctx.strokeStyle = '#ef4444'
+      ctx.beginPath()
+      ctx.moveTo(cx, cy + 45)
+      ctx.quadraticCurveTo(cx - 160, cy + 60, cx - 160, cy + 120)
+      ctx.quadraticCurveTo(cx - 160, cy + 160, cx, cy + 170)
+      ctx.stroke()
+
+      ctx.strokeStyle = '#3b82f6'
+      ctx.beginPath()
+      ctx.moveTo(cx, cy + 170)
+      ctx.quadraticCurveTo(cx + 160, cy + 160, cx + 160, cy + 100)
+      ctx.quadraticCurveTo(cx + 160, cy + 60, cx, cy + 45)
+      ctx.stroke()
+
+      // Partiküller (kan hücreleri)
+      particles.forEach(p => {
+        p.t = (p.t + 0.004 * (heartRate / 70)) % 1
+        let px, py, color
+        if (p.path === 'pulm') {
+          if (p.t < 0.5) {
+            const pt = p.t / 0.5
+            const side = p.t < 0.25 ? -1 : 1
+            px = cx + side * 18 + Math.sin(pt * Math.PI) * side * 72
+            py = cy + 10 - Math.sin(pt * Math.PI) * 60
+            color = '#3b82f6'
+          } else {
+            const pt = (p.t - 0.5) / 0.5
+            const side = p.t < 0.75 ? -1 : 1
+            px = cx + side * 75 - Math.sin(pt * Math.PI) * side * 60
+            py = cy - 70 + Math.sin(pt * Math.PI) * 75
+            color = '#ef4444'
+          }
+        } else {
+          if (p.t < 0.5) {
+            const pt = p.t / 0.5
+            px = cx - Math.sin(pt * Math.PI * 2) * 160
+            py = cy + 45 + Math.sin(pt * Math.PI) * 125
+            color = '#ef4444'
+          } else {
+            const pt = (p.t - 0.5) / 0.5
+            px = cx + Math.sin(pt * Math.PI * 2) * 160
+            py = cy + 170 - Math.sin(pt * Math.PI) * 125
+            color = '#3b82f6'
+          }
+        }
+        ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2)
+        ctx.fillStyle = color; ctx.fill()
+      })
+
+      // BPM
+      ctx.fillStyle = '#dc2626'; ctx.font = 'bold 16px JetBrains Mono'
+      ctx.textAlign = 'left'
+      ctx.fillText(`♥ ${heartRate} bpm`, 10, 24)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+      ctx.fillText('● Oksijenli  ● Oksijensiz', 10, 42)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [heartRate, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Çift Dolaşım</span></div>
+      <canvas ref={canvasRef} width={600} height={310} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Kalp hızı" min={40} max={180} step={1} value={heartRate} onChange={setHeartRate} unit=" bpm" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 17. LENS VE KIRILMA ──────────────────────────────────────────
+export function LensRefraction({ kavram = 'Lens ve Işık Kırılması', aciklama }) {
+  const canvasRef = useRef()
+  const [focalLen, setFocalLen] = useState(120)
+  const [objDist, setObjDist] = useState(200)
+  const [lensType, setLensType] = useState('convex')
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+    const f = lensType === 'convex' ? focalLen : -focalLen
+    const imgDist = 1 / (1 / f - 1 / (-objDist)) // 1/v = 1/f - 1/u (ayna)
+    const magnif = -imgDist / (-objDist)
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    // Optik eksen
+    ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 1; ctx.setLineDash([6, 6])
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke()
+    ctx.setLineDash([])
+
+    // Mercek
+    const lx = cx
+    if (lensType === 'convex') {
+      ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5
+      ctx.beginPath(); ctx.moveTo(lx, cy - 80); ctx.lineTo(lx, cy + 80); ctx.stroke()
+      // Çift ok
+      ;[-80, 80].forEach(dy => {
+        const dir = dy > 0 ? 1 : -1
+        ctx.beginPath()
+        ctx.moveTo(lx, cy + dy)
+        ctx.lineTo(lx - 8, cy + dy - dir * 12)
+        ctx.lineTo(lx + 8, cy + dy - dir * 12)
+        ctx.closePath(); ctx.fillStyle = '#3b82f6'; ctx.fill()
+      })
+    } else {
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2
+      ctx.beginPath(); ctx.moveTo(lx, cy - 80); ctx.lineTo(lx, cy + 80); ctx.stroke()
+      ;[-80, 80].forEach(dy => {
+        const dir = dy > 0 ? -1 : 1
+        ctx.beginPath()
+        ctx.moveTo(lx, cy + dy)
+        ctx.lineTo(lx - 8, cy + dy - dir * 12)
+        ctx.lineTo(lx + 8, cy + dy - dir * 12)
+        ctx.closePath(); ctx.fillStyle = '#ef4444'; ctx.fill()
+      })
+    }
+
+    // Odak noktaları
+    ;[-f, f].forEach(fd => {
+      ctx.beginPath(); ctx.arc(lx + fd, cy, 5, 0, Math.PI * 2)
+      ctx.fillStyle = '#f59e0b'; ctx.fill()
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+      ctx.textAlign = 'center'; ctx.fillText('F', lx + fd, cy + 16)
+    })
+
+    // Nesne
+    const ox = cx - objDist
+    const objH = 50
+    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5
+    ctx.beginPath(); ctx.moveTo(ox, cy); ctx.lineTo(ox, cy - objH); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(ox, cy - objH); ctx.lineTo(ox - 8, cy - objH + 12); ctx.lineTo(ox + 8, cy - objH + 12); ctx.closePath()
+    ctx.fillStyle = '#10b981'; ctx.fill()
+    ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+    ctx.textAlign = 'center'; ctx.fillText('Nesne', ox, cy + 16)
+
+    // Görüntü
+    if (isFinite(imgDist) && Math.abs(imgDist) < W) {
+      const ix = lx + imgDist
+      const imgH = objH * magnif
+      ctx.strokeStyle = imgDist > 0 ? '#7c3aed' : 'rgba(124,58,237,0.4)'
+      ctx.lineWidth = 2; ctx.setLineDash(imgDist < 0 ? [4, 4] : [])
+      ctx.beginPath(); ctx.moveTo(ix, cy); ctx.lineTo(ix, cy - imgH); ctx.stroke()
+      ctx.setLineDash([])
+      ctx.fillStyle = '#6b6560'; ctx.fillText(`Görüntü\n${imgDist.toFixed(0)}px`, ix, cy + 16)
+    }
+
+    // Işık ışınları
+    const rays = [
+      { color: '#f59e0b', startY: cy - objH },
+      { color: '#3b82f6', startY: cy - objH * 0.6 },
+      { color: '#ef4444', startY: cy - objH * 0.3 },
+    ]
+    rays.forEach(({ color, startY }) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.7
+      ctx.beginPath(); ctx.moveTo(ox, startY); ctx.lineTo(lx, startY); ctx.stroke()
+      if (isFinite(imgDist)) {
+        const ix = lx + imgDist, iy = cy - (startY - cy) * magnif
+        ctx.beginPath(); ctx.moveTo(lx, startY); ctx.lineTo(ix, iy); ctx.stroke()
+      }
+      ctx.globalAlpha = 1
+    })
+
+    // Bilgi
+    ctx.fillStyle = '#1a1814'; ctx.font = '11px JetBrains Mono'; ctx.textAlign = 'left'
+    const info = [
+      `f = ${f.toFixed(0)} px`,
+      `d_o = ${objDist} px`,
+      `d_i = ${imgDist.toFixed(0)} px`,
+      `m = ${magnif.toFixed(2)}x`,
+      isFinite(imgDist) && imgDist > 0 ? 'Gerçek görüntü' : 'Sanal görüntü',
+    ]
+    ctx.fillStyle = 'rgba(247,245,240,0.93)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    ctx.fillRect(W - 140, 10, 130, info.length * 17 + 10)
+    ctx.strokeRect(W - 140, 10, 130, info.length * 17 + 10)
+    info.forEach((line, i) => {
+      ctx.fillStyle = '#3d5af1'; ctx.fillText(line, W - 134, 24 + i * 17)
+    })
+  }, [focalLen, objDist, lensType])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>1/f = 1/d_o + 1/d_i</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Mercek tipi</div>
+          <select value={lensType} onChange={e => setLensType(e.target.value)}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            <option value="convex">Konveks (yakınsak)</option>
+            <option value="concave">Konkav (ıraksak)</option>
+          </select>
+        </div>
+        <Ctrl label="Odak uzaklığı f" min={50} max={200} step={5} value={focalLen} onChange={setFocalLen} unit=" px" />
+        <Ctrl label="Nesne uzaklığı" min={60} max={260} step={5} value={objDist} onChange={setObjDist} unit=" px" />
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 18. ELASTİK ÇARPIŞMA ─────────────────────────────────────────
+export function Collision({ kavram = 'Çarpışma', aciklama }) {
+  const canvasRef = useRef()
+  const [m1, setM1] = useState(2)
+  const [m2, setM2] = useState(1)
+  const [v1, setV1] = useState(5)
+  const [elastic, setElastic] = useState(true)
+  const [running, setRunning] = useState(false)
+  const rafRef = useRef()
+  const stateRef = useRef(null)
+
+  function reset() {
+    const e = elastic ? 1 : 0.3
+    stateRef.current = {
+      b1: { x: 100, y: 0, r: 15 + m1 * 8, vx: v1 * 20, m: m1 },
+      b2: { x: 450, y: 0, r: 15 + m2 * 8, vx: 0, m: m2 },
+      collided: false, e,
+    }
+    setRunning(false)
+  }
+
+  useEffect(() => { reset() }, [m1, m2, v1, elastic])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cy = H / 2
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+      // Zemin
+      ctx.fillStyle = '#f0ece6'; ctx.fillRect(0, cy + 30, W, H - cy - 30)
+      ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 1.5
+      ctx.beginPath(); ctx.moveTo(0, cy + 30); ctx.lineTo(W, cy + 30); ctx.stroke()
+
+      if (!stateRef.current) return
+      const { b1, b2 } = stateRef.current
+
+      if (running) {
+        b1.x += b1.vx * 0.016
+        b2.x += b2.vx * 0.016
+
+        const dist = Math.abs(b1.x - b2.x)
+        if (!stateRef.current.collided && dist < b1.r + b2.r) {
+          stateRef.current.collided = true
+          const e = stateRef.current.e
+          const u1 = b1.vx, u2 = b2.vx
+          const M = b1.m + b2.m
+          b1.vx = ((b1.m - e * b2.m) * u1 + (1 + e) * b2.m * u2) / M
+          b2.vx = ((b2.m - e * b1.m) * u2 + (1 + e) * b1.m * u1) / M
+        }
+
+        if (b1.x < b1.r || b1.x > W - b1.r) b1.vx *= -1
+        if (b2.x < b2.r || b2.x > W - b2.r) b2.vx *= -1
+      }
+
+      // Toplar
+      ;[b1, b2].forEach((b, i) => {
+        const grad = ctx.createRadialGradient(b.x - b.r * 0.3, cy - b.r * 0.3, b.r * 0.1, b.x, cy, b.r)
+        grad.addColorStop(0, i === 0 ? '#93c5fd' : '#86efac')
+        grad.addColorStop(1, i === 0 ? '#3d5af1' : '#10b981')
+        ctx.beginPath(); ctx.arc(b.x, cy, b.r, 0, Math.PI * 2)
+        ctx.fillStyle = grad; ctx.fill()
+        ctx.strokeStyle = i === 0 ? '#2d49e0' : '#059669'; ctx.lineWidth = 1.5; ctx.stroke()
+
+        // Hız oku
+        if (Math.abs(b.vx) > 0.5) {
+          const arrowLen = b.vx * 2
+          ctx.strokeStyle = i === 0 ? '#3d5af1' : '#10b981'; ctx.lineWidth = 2
+          ctx.beginPath(); ctx.moveTo(b.x, cy - b.r - 8); ctx.lineTo(b.x + arrowLen, cy - b.r - 8); ctx.stroke()
+          ctx.beginPath()
+          const dir = arrowLen > 0 ? 1 : -1
+          ctx.moveTo(b.x + arrowLen, cy - b.r - 8)
+          ctx.lineTo(b.x + arrowLen - dir * 8, cy - b.r - 14)
+          ctx.lineTo(b.x + arrowLen - dir * 8, cy - b.r - 2)
+          ctx.closePath(); ctx.fill()
+        }
+
+        ctx.fillStyle = 'white'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center'
+        ctx.fillText(`m=${b.m}`, b.x, cy + 4)
+      })
+
+      // Bilgi
+      ctx.fillStyle = '#1a1814'; ctx.font = '11px JetBrains Mono'; ctx.textAlign = 'left'
+      const p_before = m1 * v1, p_after = b1.m * b1.vx + b2.m * b2.vx
+      const ke_before = 0.5 * m1 * v1 * v1
+      const ke_after = 0.5 * b1.m * (b1.vx/20) * (b1.vx/20) + 0.5 * b2.m * (b2.vx/20) * (b2.vx/20)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+      ctx.fillText(`p = ${p_after.toFixed(1)} kg·m/s`, 8, 20)
+      ctx.fillText(`${elastic ? 'Elastik' : 'Esnek olmayan'}`, 8, 36)
+
+      if (running) rafRef.current = requestAnimationFrame(draw)
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [running, m1, m2, v1, elastic])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Momentum Korunumu</span></div>
+      <canvas ref={canvasRef} width={600} height={200} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Kütle m₁" min={1} max={5} step={0.5} value={m1} onChange={setM1} unit=" kg" />
+        <Ctrl label="Kütle m₂" min={1} max={5} step={0.5} value={m2} onChange={setM2} unit=" kg" />
+        <Ctrl label="Hız v₁" min={1} max={10} step={0.5} value={v1} onChange={setV1} unit=" m/s" />
+        <div>
+          <div style={S.label}>Çarpışma tipi</div>
+          <select value={elastic ? 'elastic' : 'inelastic'} onChange={e => setElastic(e.target.value === 'elastic')}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            <option value="elastic">Elastik</option>
+            <option value="inelastic">Esnek olmayan</option>
+          </select>
+        </div>
+        <button style={S.btn} onClick={() => { reset(); setTimeout(() => setRunning(true), 50) }}>▶ Başlat</button>
+        <button style={S.btn} onClick={reset}>↺ Sıfırla</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 19. TÜREv GEOMETRİK ANLAM ────────────────────────────────────
+export function Derivative({ kavram = 'Türev - Geometrik Anlam', aciklama }) {
+  const canvasRef = useRef()
+  const [xVal, setXVal] = useState(1)
+  const [funcIdx, setFuncIdx] = useState(0)
+
+  const funcs = [
+    { label: 'x²', fn: x => x * x, deriv: x => 2 * x },
+    { label: 'x³', fn: x => x * x * x * 0.5, deriv: x => 1.5 * x * x },
+    { label: 'sin(x)', fn: x => Math.sin(x) * 2, deriv: x => Math.cos(x) * 2 },
+    { label: 'e^(0.5x)', fn: x => Math.exp(x * 0.5) * 0.8, deriv: x => 0.5 * Math.exp(x * 0.5) * 0.8 },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+    const scale = 50
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    // Grid
+    ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    for (let x = cx % scale; x < W; x += scale) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
+    for (let y = cy % scale; y < H; y += scale) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
+
+    // Eksenler
+    ctx.strokeStyle = '#a09990'; ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke()
+
+    const { fn, deriv } = funcs[funcIdx]
+
+    // Fonksiyon
+    ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 2.5
+    ctx.beginPath()
+    let first = true
+    for (let px = 0; px <= W; px++) {
+      const x = (px - cx) / scale
+      const y = cy - fn(x) * scale
+      if (!isFinite(y) || Math.abs(y - cy) > H) { first = true; continue }
+      first ? ctx.moveTo(px, y) : ctx.lineTo(px, y)
+      first = false
+    }
+    ctx.stroke()
+
+    // Teğet noktası
+    const x0 = xVal
+    const y0 = fn(x0)
+    const slope = deriv(x0)
+    const px0 = cx + x0 * scale
+    const py0 = cy - y0 * scale
+
+    // Teğet çizgisi
+    const tx1 = -3, tx2 = 3
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2
+    ctx.setLineDash([])
+    ctx.beginPath()
+    ctx.moveTo(cx + tx1 * scale, cy - (y0 + slope * (tx1 - x0)) * scale)
+    ctx.lineTo(cx + tx2 * scale, cy - (y0 + slope * (tx2 - x0)) * scale)
+    ctx.stroke()
+
+    // Nokta
+    ctx.shadowColor = 'rgba(239,68,68,0.4)'; ctx.shadowBlur = 10
+    ctx.beginPath(); ctx.arc(px0, py0, 7, 0, Math.PI * 2)
+    ctx.fillStyle = '#ef4444'; ctx.fill()
+    ctx.shadowBlur = 0
+
+    // Dikey/yatay yardım çizgileri
+    ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1; ctx.setLineDash([4, 6])
+    ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(px0, cy); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(cx, py0); ctx.stroke()
+    ctx.setLineDash([])
+
+    // Bilgi kutusu
+    ctx.fillStyle = 'rgba(247,245,240,0.95)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    ctx.fillRect(8, 8, 180, 70); ctx.strokeRect(8, 8, 180, 70)
+    ctx.fillStyle = '#3d5af1'; ctx.font = '11px JetBrains Mono'
+    ctx.fillText(`f(x) = ${funcs[funcIdx].label}`, 14, 24)
+    ctx.fillText(`x₀ = ${x0.toFixed(2)}`, 14, 40)
+    ctx.fillStyle = '#ef4444'
+    ctx.fillText(`f'(x₀) = ${slope.toFixed(3)}`, 14, 56)
+    ctx.fillText(`Eğim = ${slope.toFixed(3)}`, 14, 70)
+  }, [xVal, funcIdx])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>f'(x) = lim Δf/Δx</span></div>
+      <canvas ref={canvasRef} width={600} height={320} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Fonksiyon</div>
+          <select value={funcIdx} onChange={e => setFuncIdx(+e.target.value)}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            {funcs.map((f, i) => <option key={i} value={i}>{f.label}</option>)}
+          </select>
+        </div>
+        <Ctrl label="x₀ noktası" min={-3} max={3} step={0.05} value={xVal} onChange={setXVal} unit="" />
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 20. SERA ETKİSİ ──────────────────────────────────────────────
+export function GreenhouseEffect({ kavram = 'Sera Etkisi', aciklama }) {
+  const canvasRef = useRef()
+  const [co2Level, setCo2Level] = useState(50)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const temp = (15 + co2Level * 0.3).toFixed(1)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    const photons = Array.from({ length: 20 }, (_, i) => ({
+      x: Math.random() * W, y: -20 - Math.random() * 100,
+      type: 'solar', speed: 1.5 + Math.random(),
+      absorbed: false, bounced: false,
+    }))
+
+    const infrared = []
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Gökyüzü gradient
+      const tempColor = Math.min(255, 150 + co2Level)
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.65)
+      sky.addColorStop(0, `rgb(30, ${100 - co2Level * 0.3}, ${200 - co2Level})`)
+      sky.addColorStop(1, `rgb(${100 + co2Level}, ${150 - co2Level * 0.5}, ${180 - co2Level})`)
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H)
+
+      // Zemin
+      const ground = ctx.createLinearGradient(0, H * 0.65, 0, H)
+      ground.addColorStop(0, `rgb(${80 + co2Level * 0.5}, ${120 - co2Level * 0.3}, 60)`)
+      ground.addColorStop(1, `rgb(${60 + co2Level * 0.3}, 90, 40)`)
+      ctx.fillStyle = ground; ctx.fillRect(0, H * 0.65, W, H * 0.35)
+
+      // Atmosfer katmanları
+      for (let i = 0; i < 3; i++) {
+        const layerY = H * 0.15 + i * H * 0.12
+        const alpha = (co2Level / 100) * 0.12
+        ctx.fillStyle = `rgba(100, 200, 100, ${alpha})`
+        ctx.fillRect(0, layerY, W, H * 0.1)
+        ctx.fillStyle = `rgba(100, 200, 100, ${alpha * 0.5})`
+        ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'left'
+        ctx.fillText(`CO₂ katmanı ${i + 1}`, 8, layerY + 14)
+      }
+
+      // Güneş
+      ctx.save(); ctx.translate(W * 0.85, H * 0.08); ctx.rotate(t * 0.2)
+      ctx.strokeStyle = 'rgba(251,191,36,0.6)'; ctx.lineWidth = 2
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2
+        ctx.beginPath(); ctx.moveTo(Math.cos(a) * 18, Math.sin(a) * 18)
+        ctx.lineTo(Math.cos(a) * 26, Math.sin(a) * 26); ctx.stroke()
+      }
+      ctx.restore()
+      ctx.beginPath(); ctx.arc(W * 0.85, H * 0.08, 16, 0, Math.PI * 2)
+      ctx.fillStyle = '#fef08a'; ctx.fill()
+
+      // Fotonlar
+      photons.forEach(p => {
+        if (running) {
+          if (!p.absorbed && !p.bounced) {
+            p.y += p.speed
+            if (p.y > H * 0.65) {
+              p.absorbed = true
+              infrared.push({ x: p.x, y: H * 0.65, vy: -1.2, vx: (Math.random() - 0.5) * 0.8 })
+            }
+          }
+          if (p.absorbed && Math.random() < 0.01) {
+            p.x = Math.random() * W; p.y = -20; p.absorbed = false; p.bounced = false
+          }
+        }
+        if (!p.absorbed && !p.bounced) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2)
+          ctx.fillStyle = '#fef08a'; ctx.fill()
+        }
+      })
+
+      // Kızılötesi fotonlar
+      for (let i = infrared.length - 1; i >= 0; i--) {
+        const ir = infrared[i]
+        if (running) {
+          ir.y += ir.vy; ir.x += ir.vx
+          // CO2 tarafından yansıtılma
+          const layerY = H * 0.3
+          if (ir.y < layerY && Math.random() < co2Level / 100 * 0.15) {
+            ir.vy = Math.abs(ir.vy)
+          }
+          if (ir.y < 0 || ir.y > H || ir.x < 0 || ir.x > W) {
+            infrared.splice(i, 1); continue
+          }
+        }
+        ctx.beginPath(); ctx.arc(ir.x, ir.y, 3.5, 0, Math.PI * 2)
+        ctx.fillStyle = '#f87171'; ctx.fill()
+      }
+
+      // Sıcaklık göstergesi
+      ctx.fillStyle = 'rgba(255,255,255,0.93)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(10, 10, 150, 65); ctx.strokeRect(10, 10, 150, 65)
+      ctx.fillStyle = '#dc2626'; ctx.font = 'bold 18px JetBrains Mono'
+      ctx.fillText(`${temp}°C`, 18, 38)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+      ctx.fillText(`CO₂: ${co2Level} ppm`, 18, 54)
+      ctx.fillText(co2Level > 60 ? '⚠ Yüksek!' : '✓ Normal', 18, 68)
+
+      // Legend
+      ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(W - 100, H - 40, 5, 0, Math.PI*2); ctx.fill()
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText('Güneş ışını', W - 90, H - 36)
+      ctx.fillStyle = '#f87171'; ctx.beginPath(); ctx.arc(W - 100, H - 22, 5, 0, Math.PI*2); ctx.fill()
+      ctx.fillText('Kızılötesi', W - 90, H - 18)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [co2Level, running, temp])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>İklim Değişikliği</span></div>
+      <canvas ref={canvasRef} width={600} height={320} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="CO₂ seviyesi" min={10} max={100} step={1} value={co2Level} onChange={setCo2Level} unit=" ppm" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: co2Level > 60 ? 'var(--red)' : 'var(--green)' }}>
+          Sıcaklık: {temp}°C
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 21. NÜKLEER FİSYON ───────────────────────────────────────────
+export function NuclearFission({ kavram = 'Nükleer Fisyon', aciklama }) {
+  const canvasRef = useRef()
+  const [running, setRunning] = useState(true)
+  const [chainReaction, setChainReaction] = useState(false)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+  const particlesRef = useRef([])
+  const nucleiRef = useRef([])
+
+  useEffect(() => {
+    nucleiRef.current = [{ x: 300, y: 160, split: false, r: 22, t: 0 }]
+    if (chainReaction) {
+      nucleiRef.current = [
+        { x: 200, y: 120, split: false, r: 20, t: 0 },
+        { x: 380, y: 100, split: false, r: 20, t: 0 },
+        { x: 300, y: 200, split: false, r: 20, t: 0 },
+      ]
+    }
+    particlesRef.current = [{ x: 20, y: 160, vx: 3, vy: 0, type: 'neutron', r: 5 }]
+    tRef.current = 0
+  }, [chainReaction])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function drawNucleus(n) {
+      if (n.exploding) {
+        const age = n.explodeAge || 0
+        const r = n.r + age * 3
+        ctx.globalAlpha = Math.max(0, 1 - age / 20)
+        const eg = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r)
+        eg.addColorStop(0, '#fef08a'); eg.addColorStop(0.5, '#f59e0b'); eg.addColorStop(1, 'transparent')
+        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2)
+        ctx.fillStyle = eg; ctx.fill()
+        ctx.globalAlpha = 1
+        return
+      }
+      const g = ctx.createRadialGradient(n.x - 5, n.y - 5, 2, n.x, n.y, n.r)
+      g.addColorStop(0, '#a78bfa'); g.addColorStop(1, '#7c3aed')
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
+      ctx.fillStyle = g; ctx.fill()
+      // Nükleon parçacıkları
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + (n.t || 0)
+        const pr = n.r * 0.55
+        ctx.beginPath(); ctx.arc(n.x + Math.cos(a) * pr, n.y + Math.sin(a) * pr, 4, 0, Math.PI * 2)
+        ctx.fillStyle = i % 2 === 0 ? '#f87171' : '#60a5fa'; ctx.fill()
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#07090f'; ctx.fillRect(0, 0, W, H)
+
+      // Yıldız arka plan
+      for (let i = 0; i < 40; i++) {
+        const sx = (i * 137 + 50) % W, sy = (i * 97 + 30) % H
+        ctx.beginPath(); ctx.arc(sx, sy, 1, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255,255,255,${0.2 + (i % 5) * 0.1})`; ctx.fill()
+      }
+
+      const t = tRef.current
+      nucleiRef.current.forEach(n => { n.t = t * 0.05 })
+
+      // Partiküller
+      particlesRef.current.forEach((p, pi) => {
+        if (running) {
+          p.x += p.vx; p.y += p.vy
+          // Çekirdekle çarpışma
+          nucleiRef.current.forEach((n, ni) => {
+            if (!n.split && !n.exploding) {
+              const dist = Math.hypot(p.x - n.x, p.y - n.y)
+              if (dist < n.r + p.r) {
+                n.split = true; n.exploding = true; n.explodeAge = 0
+                particlesRef.current.splice(pi, 1)
+                // Yeni nötronlar
+                for (let k = 0; k < 3; k++) {
+                  const a = (k / 3) * Math.PI * 2
+                  particlesRef.current.push({ x: n.x, y: n.y, vx: Math.cos(a) * 2.5, vy: Math.sin(a) * 2.5, type: 'neutron', r: 5 })
+                }
+                // Enerji parçacıkları
+                for (let k = 0; k < 8; k++) {
+                  const a = Math.random() * Math.PI * 2
+                  particlesRef.current.push({ x: n.x, y: n.y, vx: Math.cos(a) * (1 + Math.random() * 3), vy: Math.sin(a) * (1 + Math.random() * 3), type: 'energy', r: 4, life: 30 })
+                }
+              }
+            }
+          })
+        }
+
+        // Çiz
+        if (p.type === 'neutron') {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+          ctx.fillStyle = '#60a5fa'; ctx.fill()
+          ctx.fillStyle = 'white'; ctx.font = 'bold 6px Inter'; ctx.textAlign = 'center'
+          ctx.fillText('n', p.x, p.y + 2)
+        } else {
+          if (p.life !== undefined) p.life--
+          if (p.life < 0) { particlesRef.current.splice(pi, 1); return }
+          const alpha = (p.life || 30) / 30
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r * alpha, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(251,191,36,${alpha})`; ctx.fill()
+        }
+      })
+
+      // Çekirdekler
+      nucleiRef.current.forEach(n => {
+        if (n.exploding) {
+          n.explodeAge = (n.explodeAge || 0) + 1
+          if (n.explodeAge > 30) n.exploding = false
+        }
+        drawNucleus(n)
+      })
+
+      // Etiket
+      ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 12px JetBrains Mono'
+      ctx.textAlign = 'left'; ctx.fillText('²³⁵U + n → Fisyon + 3n + Enerji', 8, 20)
+      ctx.fillStyle = '#60a5fa'; ctx.font = '10px JetBrains Mono'
+      ctx.fillText(`E = Δm·c²`, 8, 36)
+
+      if (running) { tRef.current += 1; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [running, chainReaction])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>E = Δm·c²</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{ ...S.canvas, width: '100%', background: '#07090f' }} />
+      <div style={S.controls}>
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+        <button style={S.btn} onClick={() => { setChainReaction(false); setTimeout(() => setChainReaction(false), 10) }}>↺ Sıfırla</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <input type="checkbox" checked={chainReaction} onChange={e => setChainReaction(e.target.checked)} id="chain" />
+          <label htmlFor="chain" style={{ fontSize: '0.78rem', color: 'var(--ink2)', cursor: 'pointer' }}>Zincir reaksiyon</label>
         </div>
       </div>
       {aciklama && <div style={S.desc}>{aciklama}</div>}
