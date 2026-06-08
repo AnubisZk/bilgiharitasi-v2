@@ -1208,13 +1208,17 @@ const KEYWORD_MAP = [
   { keys: ['sarkaç', 'pendulum', 'salıngaç'], Component: Pendulum },
   { keys: ['yay', 'harmonik hareket', 'bhm', 'basit harmonik', 'osilatör'], Component: BHMSpring },
   { keys: ['dalga süperpozisyon', 'girişim', 'interferans', 'superposition'], Component: WaveSuperposition },
-  { keys: ['fourier', 'harmonik', 'spektrum'], Component: FourierSeries },
+  { keys: ['fourier', 'spektrum'], Component: FourierSeries },
   { keys: ['atom', 'elektron', 'yörünge', 'bohr', 'orbital'], Component: AtomModel },
   { keys: ['dna', 'sarmal', 'nükleotid', 'gen', 'kromatit'], Component: DNAHelix },
-  { keys: ['fonksiyon', 'grafik', 'eğri', 'trigonometri', 'sinüs', 'kosinüs'], Component: FunctionPlotter },
-  { keys: ['vektör', 'alan', 'kuvvet alanı', 'manyetik', 'elektrik alan'], Component: VectorField },
+  { keys: ['fonksiyon', 'eğri', 'trigonometri', 'sinüs', 'kosinüs'], Component: FunctionPlotter },
+  { keys: ['vektör', 'kuvvet alanı', 'manyetik alan', 'elektrik alan'], Component: VectorField },
   { keys: ['kinetik', 'kinemati', 'mertebe', 'atış', 'parabol', 'projectile'], Component: Kinematics },
   { keys: ['ohm', 'devre', 'akım', 'direnç', 'gerilim'], Component: OhmCircuit },
+  { keys: ['fotosentez', 'ağaç', 'yaprak', 'klorofil', 'bitki', 'co2'], Component: TreePhotosynthesis },
+  { keys: ['güneş panel', 'solar', 'fotovoltaik', 'güneş enerjisi'], Component: SolarPanel },
+  { keys: ['rüzgar türbin', 'rüzgar enerjisi', 'yeldeğirmeni', 'wind'], Component: WindTurbine },
+  { keys: ['hidroelektrik', 'su enerjisi', 'baraj', 'su döngüsü', 'nehir', 'akış'], Component: WaterHydro },
 ]
 
 export function AutoViz({ kavram = '', aciklama = '' }) {
@@ -1225,3 +1229,623 @@ export function AutoViz({ kavram = '', aciklama = '' }) {
 }
 
 export default AutoViz
+
+// ─── 11. AĞAÇ / FOTOSENTEz ───────────────────────────────────────
+export function TreePhotosynthesis({ kavram = 'Fotosentez', aciklama }) {
+  const canvasRef = useRef()
+  const [light, setLight] = useState(80)
+  const [co2, setCo2] = useState(60)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    const particles = []
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: Math.random() * W, y: Math.random() * H,
+        type: Math.random() > 0.5 ? 'co2' : 'h2o',
+        vx: (Math.random() - 0.5) * 0.5, vy: -0.3 - Math.random() * 0.3,
+        life: Math.random(),
+      })
+    }
+
+    function drawTree(t) {
+      // Zemin
+      const grad = ctx.createLinearGradient(0, H * 0.75, 0, H)
+      grad.addColorStop(0, '#a7f3d0')
+      grad.addColorStop(1, '#6ee7b7')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, H * 0.75, W, H * 0.25)
+
+      // Gövde
+      ctx.fillStyle = '#78350f'
+      ctx.beginPath()
+      ctx.moveTo(W/2 - 18, H * 0.75)
+      ctx.lineTo(W/2 + 18, H * 0.75)
+      ctx.lineTo(W/2 + 10, H * 0.35)
+      ctx.lineTo(W/2 - 10, H * 0.35)
+      ctx.closePath()
+      ctx.fill()
+
+      // Yapraklar (nefes alan)
+      const breathe = 1 + Math.sin(t * 2) * 0.04 * (light / 100)
+      const green = Math.floor(100 + (light / 100) * 55)
+      ;[
+        [W/2, H * 0.22, 90],
+        [W/2 - 55, H * 0.38, 70],
+        [W/2 + 55, H * 0.38, 70],
+        [W/2 - 30, H * 0.3, 75],
+        [W/2 + 30, H * 0.3, 75],
+      ].forEach(([x, y, r]) => {
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.scale(breathe, breathe)
+        ctx.beginPath()
+        ctx.arc(0, 0, r, 0, Math.PI * 2)
+        ctx.fillStyle = `rgb(${50}, ${green}, ${70})`
+        ctx.fill()
+        ctx.restore()
+      })
+    }
+
+    function drawSun(t) {
+      const sunX = W * 0.85, sunY = H * 0.12
+      const rays = 12
+      ctx.save()
+      ctx.translate(sunX, sunY)
+      ctx.rotate(t * 0.3)
+      ctx.strokeStyle = `rgba(251,191,36,${0.4 + (light/100)*0.4})`
+      ctx.lineWidth = 2
+      for (let i = 0; i < rays; i++) {
+        const a = (i / rays) * Math.PI * 2
+        ctx.beginPath()
+        ctx.moveTo(Math.cos(a) * 22, Math.sin(a) * 22)
+        ctx.lineTo(Math.cos(a) * 35, Math.sin(a) * 35)
+        ctx.stroke()
+      }
+      ctx.restore()
+      const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 20)
+      sunGrad.addColorStop(0, '#fef08a')
+      sunGrad.addColorStop(1, '#f59e0b')
+      ctx.beginPath()
+      ctx.arc(sunX, sunY, 20, 0, Math.PI * 2)
+      ctx.fillStyle = sunGrad
+      ctx.fill()
+
+      // Işın çizgileri ağaca doğru
+      const beams = Math.floor(light / 25)
+      for (let i = 0; i < beams; i++) {
+        const tx = W/2 + (Math.random() - 0.5) * 60
+        const ty = H * 0.25
+        ctx.strokeStyle = `rgba(251,191,36,${0.15 + Math.sin(t*3+i)*0.1})`
+        ctx.lineWidth = 1
+        ctx.setLineDash([4,8])
+        ctx.beginPath()
+        ctx.moveTo(sunX, sunY + 20)
+        ctx.lineTo(tx, ty)
+        ctx.stroke()
+        ctx.setLineDash([])
+      }
+    }
+
+    function drawParticles(t) {
+      particles.forEach(p => {
+        p.x += p.vx
+        p.y += p.vy * (light / 80)
+        p.life += 0.005
+        if (p.y < 0 || p.life > 1) {
+          p.x = W/2 + (Math.random() - 0.5) * 80
+          p.y = H * 0.5
+          p.life = 0
+          p.type = Math.random() > (co2 / 100) ? 'o2' : 'co2'
+        }
+        const alpha = Math.sin(p.life * Math.PI) * 0.8
+        ctx.font = '11px Inter, sans-serif'
+        ctx.globalAlpha = alpha
+        if (p.type === 'co2') { ctx.fillStyle = '#6b7280'; ctx.fillText('CO₂', p.x, p.y) }
+        else if (p.type === 'h2o') { ctx.fillStyle = '#3b82f6'; ctx.fillText('H₂O', p.x, p.y) }
+        else { ctx.fillStyle = '#10b981'; ctx.fillText('O₂', p.x, p.y) }
+        ctx.globalAlpha = 1
+      })
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      // Gökyüzü
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.75)
+      sky.addColorStop(0, `hsl(${200 + light * 0.2}, ${50 + light * 0.3}%, ${60 + light * 0.2}%)`)
+      sky.addColorStop(1, '#f0fdf4')
+      ctx.fillStyle = sky
+      ctx.fillRect(0, 0, W, H * 0.75)
+
+      const t = tRef.current
+      drawSun(t)
+      drawTree(t)
+      drawParticles(t)
+
+      // Bilgi
+      const rate = ((light / 100) * (co2 / 100) * 100).toFixed(0)
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'
+      ctx.strokeStyle = '#a7f3d0'
+      ctx.lineWidth = 1
+      ctx.fillRect(8, 8, 160, 52)
+      ctx.strokeRect(8, 8, 160, 52)
+      ctx.fillStyle = '#0f7a5a'
+      ctx.font = 'bold 11px JetBrains Mono, monospace'
+      ctx.fillText(`6CO₂ + 6H₂O → C₆H₁₂O₆`, 12, 24)
+      ctx.fillStyle = '#6b6560'
+      ctx.font = '11px JetBrains Mono, monospace'
+      ctx.fillText(`Fotosentez hızı: ${rate}%`, 12, 42)
+      ctx.fillText(`Işık: ${light}%  CO₂: ${co2}%`, 12, 56)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [light, co2, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}>
+        <span style={S.title}>{kavram}</span>
+        <span style={S.badge}>6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</span>
+      </div>
+      <canvas ref={canvasRef} width={600} height={320} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Işık yoğunluğu" min={10} max={100} step={1} value={light} onChange={setLight} unit="%" />
+        <Ctrl label="CO₂ konsantrasyonu" min={10} max={100} step={1} value={co2} onChange={setCo2} unit="%" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 12. GÜNEŞ PANELİ ────────────────────────────────────────────
+export function SolarPanel({ kavram = 'Güneş Paneli', aciklama }) {
+  const canvasRef = useRef()
+  const [angle, setAngle] = useState(35)
+  const [cloudiness, setCloudiness] = useState(0)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const efficiency = Math.max(0, Math.cos((angle - 35) * Math.PI / 180) * (1 - cloudiness / 100) * 100)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function drawCloud(x, y, t, alpha) {
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = '#f0f9ff'
+      ;[[0,0,28],[25,-8,22],[50,0,28],[75,-5,20],[-20,0,20]].forEach(([dx, dy, r]) => {
+        ctx.beginPath(); ctx.arc(x+dx, y+dy, r, 0, Math.PI*2); ctx.fill()
+      })
+      ctx.globalAlpha = 1
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Gökyüzü
+      const sky = ctx.createLinearGradient(0, 0, 0, H)
+      const brightness = Math.max(30, 70 - cloudiness * 0.4)
+      sky.addColorStop(0, `hsl(210, 60%, ${brightness}%)`)
+      sky.addColorStop(1, `hsl(200, 40%, ${brightness + 15}%)`)
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H)
+
+      // Güneş
+      const sunX = W * 0.15, sunY = H * 0.15
+      const sunAlpha = 1 - cloudiness / 120
+      ctx.globalAlpha = sunAlpha
+      const sg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 30)
+      sg.addColorStop(0, '#fef08a'); sg.addColorStop(1, '#f59e0b')
+      ctx.beginPath(); ctx.arc(sunX, sunY, 28, 0, Math.PI*2)
+      ctx.fillStyle = sg; ctx.fill()
+      ctx.globalAlpha = 1
+
+      // Bulutlar
+      if (cloudiness > 0) {
+        drawCloud(W*0.3 + Math.sin(t*0.2)*20, H*0.1, t, cloudiness/100*0.9)
+        drawCloud(W*0.6 + Math.cos(t*0.15)*15, H*0.07, t, cloudiness/100*0.7)
+        if (cloudiness > 40) drawCloud(W*0.5 + Math.sin(t*0.1)*25, H*0.18, t, cloudiness/120)
+      }
+
+      // Güneş ışınları (panele doğru)
+      const panelCx = W/2, panelCy = H*0.55
+      const beamCount = Math.floor((1 - cloudiness/100) * 6)
+      for (let i = 0; i < beamCount; i++) {
+        const bx = panelCx + (i - beamCount/2) * 30
+        ctx.strokeStyle = `rgba(251,191,36,${0.3 + Math.sin(t*2+i)*0.1})`
+        ctx.lineWidth = 1.5; ctx.setLineDash([6,10])
+        ctx.beginPath(); ctx.moveTo(sunX, sunY+28); ctx.lineTo(bx, panelCy - 20); ctx.stroke()
+        ctx.setLineDash([])
+      }
+
+      // Zemin
+      ctx.fillStyle = '#d1fae5'; ctx.fillRect(0, H*0.8, W, H*0.2)
+
+      // Panel standı
+      ctx.fillStyle = '#6b7280'; ctx.fillRect(panelCx - 4, H*0.65, 8, H*0.15)
+      ctx.fillStyle = '#9ca3af'; ctx.fillRect(panelCx - 40, H*0.8 - 5, 80, 8); ctx.borderRadius = 4
+
+      // Panel (eğimli)
+      const rad = (angle - 90) * Math.PI / 180
+      const pw = 160, ph = 90
+      ctx.save()
+      ctx.translate(panelCx, panelCy)
+      ctx.rotate(rad)
+
+      // Panel çerçeve
+      ctx.fillStyle = '#1e3a5f'
+      ctx.fillRect(-pw/2 - 4, -ph/2 - 4, pw + 8, ph + 8)
+
+      // Panel hücreleri
+      const cols = 4, rows = 3
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx2 = -pw/2 + c * (pw/cols) + 2
+          const cy2 = -ph/2 + r * (ph/rows) + 2
+          const cw = pw/cols - 4, ch = ph/rows - 4
+          const cellBright = Math.max(0, 1 - cloudiness/100) * (0.7 + Math.sin(t*3+r+c)*0.1)
+          ctx.fillStyle = `rgba(${30 + cellBright*20}, ${60 + cellBright*40}, ${180 + cellBright*40}, ${0.7 + cellBright*0.3})`
+          ctx.fillRect(cx2, cy2, cw, ch)
+          // Yansıma
+          ctx.fillStyle = `rgba(255,255,255,${cellBright * 0.2})`
+          ctx.fillRect(cx2 + 2, cy2 + 2, cw * 0.4, ch * 0.3)
+        }
+      }
+      ctx.restore()
+
+      // Güç göstergesi
+      const power = efficiency.toFixed(1)
+      const barW = 140, barH = 12
+      const bx2 = W - barW - 16, by = 16
+      ctx.fillStyle = 'rgba(255,255,255,0.92)'
+      ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(bx2 - 8, by - 8, barW + 60, 80)
+      ctx.strokeRect(bx2 - 8, by - 8, barW + 60, 80)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText('Güç çıkışı', bx2, by + 8)
+      ctx.fillStyle = '#e8e4dc'
+      ctx.fillRect(bx2, by + 14, barW, barH)
+      ctx.fillStyle = efficiency > 60 ? '#10b981' : efficiency > 30 ? '#f59e0b' : '#ef4444'
+      ctx.fillRect(bx2, by + 14, barW * efficiency / 100, barH)
+      ctx.fillStyle = '#1a1814'; ctx.font = 'bold 16px JetBrains Mono, monospace'
+      ctx.fillText(`${power}%`, bx2, by + 48)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText(`Açı: ${angle}° | Bulut: ${cloudiness}%`, bx2, by + 64)
+
+      tRef.current += 0.016
+      rafRef.current = requestAnimationFrame(draw)
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [angle, cloudiness, efficiency])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}>
+        <span style={S.title}>{kavram}</span>
+        <span style={S.badge}>Fotovoltaik</span>
+      </div>
+      <canvas ref={canvasRef} width={600} height={300} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Panel açısı" min={0} max={90} step={1} value={angle} onChange={setAngle} unit="°" />
+        <Ctrl label="Bulutluluk" min={0} max={100} step={1} value={cloudiness} onChange={setCloudiness} unit="%" />
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: efficiency > 60 ? 'var(--green)' : efficiency > 30 ? 'var(--gold)' : 'var(--red)' }}>
+          Verim: {efficiency.toFixed(1)}%
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 13. RÜZGAR TÜRBİNİ ──────────────────────────────────────────
+export function WindTurbine({ kavram = 'Rüzgar Türbini', aciklama }) {
+  const canvasRef = useRef()
+  const [windSpeed, setWindSpeed] = useState(8)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const power = Math.min(100, (windSpeed / 25) * (windSpeed / 25) * (windSpeed / 25) * 100 * 0.4)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+      const rpm = windSpeed * 2.5
+      const angSpeed = rpm / 60 * Math.PI * 2
+
+      // Gökyüzü gradyanı
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.75)
+      sky.addColorStop(0, '#bfdbfe'); sky.addColorStop(1, '#eff6ff')
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H)
+
+      // Rüzgar çizgileri
+      const windAlpha = windSpeed / 25
+      for (let i = 0; i < 8; i++) {
+        const y = 30 + i * 35 + Math.sin(t * 2 + i) * 5
+        const len = 40 + windSpeed * 3
+        const x = (W + (t * windSpeed * 8 + i * 80) % (W + 100)) % (W + 100) - 50
+        ctx.strokeStyle = `rgba(147,197,253,${windAlpha * 0.6})`
+        ctx.lineWidth = 2; ctx.lineCap = 'round'
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len, y); ctx.stroke()
+      }
+
+      // Tepe
+      const grad = ctx.createLinearGradient(0, H*0.72, 0, H)
+      grad.addColorStop(0, '#86efac'); grad.addColorStop(1, '#4ade80')
+      ctx.fillStyle = grad; ctx.fillRect(0, H*0.75, W, H*0.25)
+      // Tepe silüeti
+      ctx.beginPath(); ctx.moveTo(0, H*0.75)
+      for (let x = 0; x <= W; x += 20) {
+        ctx.lineTo(x, H*0.75 - Math.sin(x*0.03)*12 - Math.sin(x*0.07)*6)
+      }
+      ctx.lineTo(W, H*0.75); ctx.closePath()
+      ctx.fillStyle = '#4ade80'; ctx.fill()
+
+      // Türbin kule
+      const tx = W/2, ty = H*0.75
+      ctx.fillStyle = '#d1d5db'
+      ctx.beginPath()
+      ctx.moveTo(tx - 14, ty); ctx.lineTo(tx + 14, ty)
+      ctx.lineTo(tx + 6, H*0.25); ctx.lineTo(tx - 6, H*0.25)
+      ctx.closePath(); ctx.fill()
+      ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1; ctx.stroke()
+
+      // Göbek
+      const hubY = H * 0.25
+      ctx.beginPath(); ctx.arc(tx, hubY, 10, 0, Math.PI*2)
+      ctx.fillStyle = '#6b7280'; ctx.fill()
+
+      // Kanatlar
+      const bladeAngle = t * angSpeed
+      ;[0, 2*Math.PI/3, 4*Math.PI/3].forEach(offset => {
+        const a = bladeAngle + offset
+        ctx.save()
+        ctx.translate(tx, hubY)
+        ctx.rotate(a)
+        ctx.beginPath()
+        ctx.moveTo(0, 0)
+        ctx.bezierCurveTo(8, -20, 6, -60, 2, -110)
+        ctx.bezierCurveTo(-2, -110, -8, -60, -4, -20)
+        ctx.closePath()
+        const bladeGrad = ctx.createLinearGradient(0, 0, 0, -110)
+        bladeGrad.addColorStop(0, '#e5e7eb'); bladeGrad.addColorStop(1, '#f9fafb')
+        ctx.fillStyle = bladeGrad; ctx.fill()
+        ctx.strokeStyle = '#d1d5db'; ctx.lineWidth = 1; ctx.stroke()
+        ctx.restore()
+      })
+
+      // Güç paneli
+      ctx.fillStyle = 'rgba(255,255,255,0.93)'
+      ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(W - 170, 10, 158, 100)
+      ctx.strokeRect(W - 170, 10, 158, 100)
+
+      const barW = 120
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText(`Rüzgar: ${windSpeed} m/s`, W - 162, 28)
+      ctx.fillText(`RPM: ${(rpm).toFixed(1)}`, W - 162, 44)
+
+      ctx.fillStyle = '#e8e4dc'; ctx.fillRect(W - 162, 50, barW, 10)
+      ctx.fillStyle = power > 60 ? '#10b981' : power > 30 ? '#f59e0b' : '#94a3b8'
+      ctx.fillRect(W - 162, 50, barW * power / 100, 10)
+
+      ctx.fillStyle = '#1a1814'; ctx.font = 'bold 22px JetBrains Mono, monospace'
+      ctx.fillText(`${power.toFixed(0)}%`, W - 162, 90)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText('Güç çıkışı', W - 162, 105)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [windSpeed, running, power])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}>
+        <span style={S.title}>{kavram}</span>
+        <span style={S.badge}>P = ½ρAv³</span>
+      </div>
+      <canvas ref={canvasRef} width={600} height={310} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Rüzgar hızı" min={0} max={25} step={0.5} value={windSpeed} onChange={setWindSpeed} unit=" m/s" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: power > 60 ? 'var(--green)' : power > 30 ? 'var(--gold)' : 'var(--ink3)' }}>
+          Güç: {power.toFixed(0)}% | RPM: {(windSpeed * 2.5).toFixed(1)}
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 14. SU / HİDROELEKTRİK ──────────────────────────────────────
+export function WaterHydro({ kavram = 'Hidroelektrik / Su Döngüsü', aciklama }) {
+  const canvasRef = useRef()
+  const [flow, setFlow] = useState(60)
+  const [height, setHeight] = useState(80)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+  const particles = useRef([])
+
+  useEffect(() => {
+    particles.current = Array.from({ length: 40 }, (_, i) => ({
+      x: Math.random() * 600, y: Math.random() * 100 + 20,
+      vx: 0.5 + Math.random() * 0.5, vy: 0,
+      phase: Math.random() * Math.PI * 2,
+      size: 3 + Math.random() * 3,
+    }))
+  }, [])
+
+  const power = ((flow / 100) * (height / 100) * 100).toFixed(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Gökyüzü
+      ctx.fillStyle = '#eff6ff'; ctx.fillRect(0, 0, W, H * 0.15)
+
+      // Bulut (buharlaşma)
+      const clouds = [[80,30],[200,20],[350,35],[480,22]]
+      clouds.forEach(([cx2, cy2]) => {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)'
+        ;[[-20,0,18],[0,-8,22],[20,0,18],[38,-4,14]].forEach(([dx,dy,r]) => {
+          ctx.beginPath(); ctx.arc(cx2+dx, cy2+dy, r, 0, Math.PI*2); ctx.fill()
+        })
+      })
+
+      // Dağ
+      ctx.fillStyle = '#6b7280'
+      ctx.beginPath()
+      ctx.moveTo(0, H); ctx.lineTo(0, H*0.45)
+      ctx.lineTo(W*0.2, H*0.18); ctx.lineTo(W*0.35, H*0.38)
+      ctx.lineTo(W*0.15, H); ctx.closePath()
+      ctx.fill()
+
+      // Kar
+      ctx.fillStyle = '#f1f5f9'
+      ctx.beginPath()
+      ctx.moveTo(W*0.2, H*0.18); ctx.lineTo(W*0.12, H*0.3)
+      ctx.lineTo(W*0.28, H*0.3); ctx.closePath(); ctx.fill()
+
+      // Yağmur damlacıkları (buharlaşma döngüsü)
+      const rainAlpha = flow / 150
+      for (let i = 0; i < 15; i++) {
+        const rx = ((t * 60 + i * 40) % (W + 20)) - 10
+        const ry = (t * 100 * (flow/100) + i * 25) % (H * 0.5)
+        ctx.strokeStyle = `rgba(96,165,250,${rainAlpha})`
+        ctx.lineWidth = 1.5; ctx.lineCap = 'round'
+        ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 2, ry + 8); ctx.stroke()
+      }
+
+      // Rezervuar (üst)
+      const resY = H * 0.28
+      ctx.fillStyle = '#1d4ed8'
+      ctx.beginPath()
+      for (let x = W*0.3; x <= W*0.7; x++) {
+        const wy = resY + Math.sin(x*0.08 + t*2) * 3 * (flow/100)
+        x === W*0.3 ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy)
+      }
+      ctx.lineTo(W*0.7, H*0.42); ctx.lineTo(W*0.3, H*0.42); ctx.closePath()
+      ctx.fill()
+      ctx.fillStyle = 'rgba(147,197,253,0.4)'
+      ctx.fillRect(W*0.3, resY, W*0.4, 6)
+
+      // Baraj
+      ctx.fillStyle = '#374151'
+      ctx.fillRect(W*0.65, H*0.3, 18, H*0.2)
+
+      // Su kanalı (düşüş)
+      const chX = W*0.655
+      const chTopY = H*0.35
+      const chBotY = H*0.6
+      const chHeight = (height / 100) * (chBotY - chTopY)
+
+      ctx.strokeStyle = '#1d4ed8'; ctx.lineWidth = 3
+      ctx.beginPath(); ctx.moveTo(chX, chTopY); ctx.lineTo(chX, chTopY + chHeight); ctx.stroke()
+
+      // Düşen su partikülleri
+      particles.current.forEach(p => {
+        if (running) {
+          p.y += (flow / 100) * 3 + 0.5
+          p.x += Math.sin(p.phase + t) * 0.5
+          if (p.y > chTopY + chHeight + 10) {
+            p.y = chTopY; p.x = chX + (Math.random() - 0.5) * 10
+          }
+        }
+        if (p.y > chTopY && p.y < chTopY + chHeight + 5) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (flow/100), 0, Math.PI*2)
+          ctx.fillStyle = `rgba(96,165,250,0.7)`; ctx.fill()
+        }
+      })
+
+      // Türbin
+      const turbX = W*0.655, turbY = chTopY + chHeight
+      ctx.save(); ctx.translate(turbX, turbY); ctx.rotate(t * (flow/100) * 4)
+      ;[0, Math.PI/2, Math.PI, 3*Math.PI/2].forEach(a => {
+        ctx.save(); ctx.rotate(a)
+        ctx.fillStyle = '#374151'
+        ctx.fillRect(-4, 0, 8, 18)
+        ctx.restore()
+      })
+      ctx.restore()
+      ctx.beginPath(); ctx.arc(turbX, turbY, 8, 0, Math.PI*2)
+      ctx.fillStyle = '#6b7280'; ctx.fill()
+
+      // Alt nehir
+      const riverY = H * 0.72
+      ctx.fillStyle = '#3b82f6'
+      ctx.beginPath()
+      ctx.moveTo(W*0.4, riverY)
+      for (let x = W*0.4; x <= W; x++) {
+        ctx.lineTo(x, riverY + Math.sin(x*0.04 - t*3) * 4 * (flow/100))
+      }
+      ctx.lineTo(W, riverY + 20); ctx.lineTo(W*0.4, riverY + 20); ctx.closePath()
+      ctx.fill()
+
+      // Zemin
+      ctx.fillStyle = '#d1fae5'; ctx.fillRect(0, H*0.82, W, H*0.18)
+      ctx.fillStyle = '#4ade80'; ctx.fillRect(W*0.4, H*0.72, W*0.6, H*0.1)
+
+      // Güç
+      ctx.fillStyle = 'rgba(255,255,255,0.93)'
+      ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(8, H*0.6, 145, 80)
+      ctx.strokeRect(8, H*0.6, 145, 80)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText(`Akış: ${flow}%  Yükseklik: ${height}%`, 12, H*0.6+16)
+      ctx.fillText(`P = ρghQ`, 12, H*0.6+30)
+      ctx.fillStyle = '#1a1814'; ctx.font = 'bold 22px JetBrains Mono, monospace'
+      ctx.fillText(`${power}%`, 12, H*0.6+60)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono, monospace'
+      ctx.fillText('Güç çıkışı', 12, H*0.6+74)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [flow, height, running, power])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}>
+        <span style={S.title}>{kavram}</span>
+        <span style={S.badge}>P = ρghQ</span>
+      </div>
+      <canvas ref={canvasRef} width={600} height={320} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Su akışı" min={10} max={100} step={1} value={flow} onChange={setFlow} unit="%" />
+        <Ctrl label="Düşüş yüksekliği" min={10} max={100} step={1} value={height} onChange={setHeight} unit="%" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸ Durdur' : '▶ Başlat'}</button>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--blue)' }}>
+          Güç: {power}%
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
