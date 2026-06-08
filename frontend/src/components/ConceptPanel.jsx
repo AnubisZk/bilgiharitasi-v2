@@ -122,14 +122,39 @@ export default function ConceptPanel({ concepts, docId, provider }) {
 function VizRenderer({ spec, kavram, tip }) {
   if (!spec) return null
 
-  if (tip === 'formul' && spec.kod) return (
-    <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--gold)', marginBottom: '1rem', overflowX: 'auto' }}>
-        {spec.kod}
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { margin:0; background:#fff; color:#1a1814; font-family:system-ui; overflow:hidden; }
+  canvas { display:block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+${spec.kod || '<p style="padding:2rem;color:#666;">Görselleştirme kodu üretilemedi.</p>'}
+</body>
+</html>`
+
+  return (
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div style={{ padding:'0.6rem 1rem', borderBottom:'1px solid var(--border)', fontFamily:'var(--font-mono)', fontSize:'0.72rem', color:'var(--ink3)', background:'var(--surface2)', display:'flex', justifyContent:'space-between' }}>
+        <span>{tip === '3d_model' ? '⬛ Three.js' : tip === 'animasyon' ? '🎬 Animasyon' : tip === 'formul' ? '∑ Formül' : '📈 Grafik'} — {kavram}</span>
       </div>
-      <p style={{ color: 'var(--ink2)', fontSize: '0.9rem' }}>{spec.aciklama}</p>
+      <iframe
+        srcDoc={html}
+        style={{ width:'100%', height:'420px', border:'none' }}
+        sandbox="allow-scripts allow-same-origin"
+        title={kavram}
+      />
+      {spec.aciklama && (
+        <p style={{ padding:'0.9rem 1rem', color:'var(--ink2)', fontSize:'0.85rem', borderTop:'1px solid var(--border)' }}>
+          {spec.aciklama}
+        </p>
+      )}
     </div>
   )
+}
 
   if ((tip === 'animasyon' || tip === '3d_model') && spec.kod) return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
