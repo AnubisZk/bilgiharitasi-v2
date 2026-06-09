@@ -1207,25 +1207,39 @@ export function OhmCircuit({ kavram = 'Ohm Yasası', aciklama }) {
 const KEYWORD_MAP = [
   { keys: ['sarkaç', 'pendulum', 'salıngaç'], Component: Pendulum },
   { keys: ['yay', 'harmonik hareket', 'bhm', 'basit harmonik', 'osilatör'], Component: BHMSpring },
-  { keys: ['dalga süperpozisyon', 'girişim', 'interferans', 'superposition'], Component: WaveSuperposition },
+  { keys: ['dalga süperpozisyon', 'girişim', 'interferans'], Component: WaveSuperposition },
   { keys: ['fourier', 'spektrum'], Component: FourierSeries },
   { keys: ['atom', 'elektron', 'yörünge', 'bohr', 'orbital'], Component: AtomModel },
   { keys: ['dna', 'sarmal', 'nükleotid', 'gen', 'kromatit'], Component: DNAHelix },
   { keys: ['fonksiyon', 'eğri', 'trigonometri', 'sinüs', 'kosinüs'], Component: FunctionPlotter },
-  { keys: ['vektör', 'kuvvet alanı', 'manyetik alan', 'elektrik alan'], Component: VectorField },
-  { keys: ['kinetik', 'kinemati', 'mertebe', 'atış', 'parabol'], Component: Kinematics },
-  { keys: ['ohm', 'devre', 'akım', 'direnç', 'gerilim'], Component: OhmCircuit },
-  { keys: ['fotosentez', 'ağaç', 'yaprak', 'klorofil', 'bitki'], Component: TreePhotosynthesis },
-  { keys: ['güneş panel', 'solar', 'fotovoltaik', 'güneş enerjisi'], Component: SolarPanel },
-  { keys: ['rüzgar türbin', 'rüzgar enerjisi', 'yeldeğirmeni'], Component: WindTurbine },
-  { keys: ['hidroelektrik', 'su enerjisi', 'baraj', 'su döngüsü', 'nehir'], Component: WaterHydro },
-  { keys: ['mitoz', 'hücre bölünme', 'mayoz', 'kromozom', 'profaz', 'metafaz'], Component: CellDivision },
-  { keys: ['kan dolaşım', 'kalp', 'damar', 'aort', 'pulmoner', 'sistol'], Component: BloodCirculation },
-  { keys: ['lens', 'kırılma', 'mercek', 'odak', 'konveks', 'konkav', 'optik'], Component: LensRefraction },
-  { keys: ['çarpışma', 'momentum', 'elastik', 'çarpma', 'kinetik enerji korunumu'], Component: Collision },
-  { keys: ['türev', 'teğet', 'diferansiyel', 'eğim', 'limit'], Component: Derivative },
-  { keys: ['sera etkisi', 'küresel ısınma', 'iklim', 'karbon'], Component: GreenhouseEffect },
-  { keys: ['nükleer', 'fisyon', 'füzyon', 'radyoaktif', 'uranyum', 'nötron'], Component: NuclearFission },
+  { keys: ['vektör alan', 'kuvvet alanı'], Component: VectorField },
+  { keys: ['kinemati', 'mertebe atış', 'parabol'], Component: Kinematics },
+  { keys: ['ohm', 'elektrik devre', 'direnç'], Component: OhmCircuit },
+  { keys: ['fotosentez', 'klorofil', 'bitki fotosentez'], Component: TreePhotosynthesis },
+  { keys: ['güneş panel', 'solar panel', 'fotovoltaik'], Component: SolarPanel },
+  { keys: ['rüzgar türbin', 'rüzgar enerjisi'], Component: WindTurbine },
+  { keys: ['hidroelektrik', 'baraj', 'su döngüsü'], Component: WaterHydro },
+  { keys: ['mitoz', 'hücre bölünme', 'mayoz', 'kromozom'], Component: CellDivision },
+  { keys: ['kan dolaşım', 'kalp dolaşım', 'pulmoner dolaşım'], Component: BloodCirculation },
+  { keys: ['lens', 'mercek', 'optik kırılma', 'konveks'], Component: LensRefraction },
+  { keys: ['çarpışma', 'momentum korunumu', 'elastik çarpışma'], Component: Collision },
+  { keys: ['türev', 'teğet çizgi', 'diferansiyel'], Component: Derivative },
+  { keys: ['sera etkisi', 'küresel ısınma', 'iklim değişikliği'], Component: GreenhouseEffect },
+  { keys: ['nükleer fisyon', 'fisyon', 'uranyum', 'nötron zincir'], Component: NuclearFission },
+  { keys: ['elektromanyetik dalga', 'em dalga', 'ışık dalgası'], Component: EMWave },
+  { keys: ['manyetik alan', 'mıknatıs', 'solenoid'], Component: MagneticField },
+  { keys: ['aksiyon potansiyeli', 'sinir iletim', 'nöron', 'miyelin'], Component: ActionPotential },
+  { keys: ['kinetik teori', 'ideal gaz', 'gaz molekül', 'termodinamik'], Component: GasMolecules },
+  { keys: ['doppler', 'ses dalgası kaynak', 'doppler etkisi'], Component: DopplerEffect },
+  { keys: ['periyodik tablo', 'element', 'kimyasal element'], Component: PeriodicTable },
+  { keys: ['titrasyon', 'asit baz', 'ph eğrisi', 'nötralizasyon'], Component: Titration },
+  { keys: ['av avcı', 'lotka volterra', 'ekosistem', 'popülasyon dinamiği'], Component: LotkaVolterra },
+  { keys: ['riemann', 'integral alan', 'belirli integral'], Component: RiemannIntegral },
+  { keys: ['güneş sistemi', 'gezegen', 'yörünge'], Component: SolarSystem },
+  { keys: ['matris dönüşüm', 'doğrusal dönüşüm', 'rotasyon matris'], Component: MatrixTransform },
+  { keys: ['levha tektoniği', 'kıta kayması', 'subdüksiyon', 'fay'], Component: PlateTectonics },
+  { keys: ['dalga enerjisi', 'okyanus dalgası', 'dalga gücü'], Component: OceanWave },
+  { keys: ['jeotermal', 'jeotermal enerji', 'yeraltı ısısı'], Component: GeothermalEnergy },
 ]
 
 export function AutoViz({ kavram = '', aciklama = '' }) {
@@ -2816,6 +2830,1446 @@ export function NuclearFission({ kavram = 'Nükleer Fisyon', aciklama }) {
           <input type="checkbox" checked={chainReaction} onChange={e => setChainReaction(e.target.checked)} id="chain" />
           <label htmlFor="chain" style={{ fontSize: '0.78rem', color: 'var(--ink2)', cursor: 'pointer' }}>Zincir reaksiyon</label>
         </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 22. ELEKTROMANYETİK DALGA ───────────────────────────────────
+export function EMWave({ kavram = 'Elektromanyetik Dalga', aciklama }) {
+  const canvasRef = useRef()
+  const [freq, setFreq] = useState(1)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Z ekseni (yayılma yönü)
+      ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 1
+      ctx.beginPath(); ctx.moveTo(40, cy); ctx.lineTo(W - 20, cy); ctx.stroke()
+      ctx.fillStyle = '#a09990'; ctx.font = '11px JetBrains Mono'
+      ctx.fillText('z (yayılma)', W - 80, cy - 6)
+
+      // E alanı (dikey - mavi)
+      ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 2.5
+      ctx.beginPath()
+      for (let x = 40; x < W - 20; x++) {
+        const z = (x - 40) / (W - 60)
+        const ey = cy - Math.sin(2 * Math.PI * freq * z - t * 2) * 60
+        x === 40 ? ctx.moveTo(x, ey) : ctx.lineTo(x, ey)
+      }
+      ctx.stroke()
+
+      // B alanı (yatay perspektif - yeşil, offset)
+      ctx.strokeStyle = '#0f7a5a'; ctx.lineWidth = 2
+      ctx.beginPath()
+      for (let x = 40; x < W - 20; x++) {
+        const z = (x - 40) / (W - 60)
+        const bval = Math.sin(2 * Math.PI * freq * z - t * 2) * 35
+        const bx = x + bval * 0.5
+        const by = cy + bval * 0.8
+        x === 40 ? ctx.moveTo(bx, by) : ctx.lineTo(bx, by)
+      }
+      ctx.stroke()
+
+      // Vektör okları
+      for (let x = 40; x < W - 20; x += 60) {
+        const z = (x - 40) / (W - 60)
+        const ey = -Math.sin(2 * Math.PI * freq * z - t * 2) * 60
+        if (Math.abs(ey) > 5) {
+          ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 1.5
+          ctx.beginPath(); ctx.moveTo(x, cy); ctx.lineTo(x, cy + ey); ctx.stroke()
+          ctx.beginPath()
+          const dir = ey < 0 ? -1 : 1
+          ctx.moveTo(x, cy + ey)
+          ctx.lineTo(x - 4, cy + ey - dir * 8)
+          ctx.lineTo(x + 4, cy + ey - dir * 8)
+          ctx.closePath(); ctx.fillStyle = '#3d5af1'; ctx.fill()
+        }
+      }
+
+      // Legend
+      ctx.fillStyle = '#3d5af1'; ctx.font = 'bold 11px JetBrains Mono'
+      ctx.fillText('E (elektrik alan)', 8, 20)
+      ctx.fillStyle = '#0f7a5a'
+      ctx.fillText('B (manyetik alan)', 8, 36)
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+      ctx.fillText(`f = ${freq} Hz | λ = ${(1/freq).toFixed(2)} m`, 8, 52)
+      ctx.fillText('c = E × B yönü', 8, H - 10)
+
+      if (running) { tRef.current += 0.025; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [freq, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>c = λf</span></div>
+      <canvas ref={canvasRef} width={600} height={240} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Frekans" min={0.5} max={4} value={freq} onChange={setFreq} unit=" Hz" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 23. MANYETİK ALAN ÇİZGİLERİ ─────────────────────────────────
+export function MagneticField({ kavram = 'Manyetik Alan', aciklama }) {
+  const canvasRef = useRef()
+  const [fieldType, setFieldType] = useState('dipole')
+  const [strength, setStrength] = useState(50)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    const scale = strength / 50
+
+    function getBField(x, y) {
+      if (fieldType === 'dipole') {
+        const dx1 = x - (cx - 80), dy1 = y - cy
+        const dx2 = x - (cx + 80), dy2 = y - cy
+        const r1 = Math.hypot(dx1, dy1) || 0.1, r2 = Math.hypot(dx2, dy2) || 0.1
+        const bx = dx1/(r1*r1*r1) - dx2/(r2*r2*r2)
+        const by = dy1/(r1*r1*r1) - dy2/(r2*r2*r2)
+        return { bx: bx * 2000 * scale, by: by * 2000 * scale }
+      } else if (fieldType === 'uniform') {
+        return { bx: scale * 2, by: 0 }
+      } else {
+        const dx = x - cx, dy = y - cy
+        const r = Math.hypot(dx, dy) || 0.1
+        return { bx: -dy / (r * r) * 5000 * scale, by: dx / (r * r) * 5000 * scale }
+      }
+    }
+
+    // Alan çizgileri
+    const lineColors = ['#3d5af1','#5b73f3','#7a8ef5','#3d5af1','#2d49e0']
+    const startPoints = fieldType === 'dipole'
+      ? Array.from({length: 16}, (_, i) => {
+          const a = (i / 16) * Math.PI * 2
+          return { x: cx - 80 + Math.cos(a) * 20, y: cy + Math.sin(a) * 20 }
+        })
+      : Array.from({length: 10}, (_, i) => ({
+          x: fieldType === 'uniform' ? 20 : cx,
+          y: 30 + i * (H - 60) / 9
+        }))
+
+    startPoints.forEach((sp, si) => {
+      ctx.strokeStyle = lineColors[si % lineColors.length]
+      ctx.lineWidth = 1.2
+      ctx.globalAlpha = 0.7
+      ctx.beginPath()
+      let x = sp.x, y = sp.y
+      ctx.moveTo(x, y)
+      for (let step = 0; step < 300; step++) {
+        const { bx, by } = getBField(x, y)
+        const mag = Math.hypot(bx, by) || 1
+        x += bx / mag * 3
+        y += by / mag * 3
+        if (x < 0 || x > W || y < 0 || y > H) break
+        ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      ctx.globalAlpha = 1
+    })
+
+    if (fieldType === 'dipole') {
+      // Kuzey (kırmızı) ve Güney (mavi) kutuplar
+      ;[['N', cx - 80, '#ef4444'], ['S', cx + 80, '#3d5af1']].forEach(([label, px, col]) => {
+        ctx.beginPath(); ctx.arc(px, cy, 18, 0, Math.PI * 2)
+        ctx.fillStyle = col; ctx.fill()
+        ctx.fillStyle = 'white'; ctx.font = 'bold 13px Inter'
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+        ctx.fillText(label, px, cy)
+      })
+    } else if (fieldType === 'solenoid') {
+      ctx.beginPath(); ctx.arc(cx, cy, 15, 0, Math.PI * 2)
+      ctx.fillStyle = '#f59e0b'; ctx.fill()
+      ctx.fillStyle = '#1a1814'; ctx.font = 'bold 10px Inter'
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('I', cx, cy)
+    }
+
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
+    ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+    ctx.fillText(`Alan tipi: ${fieldType} | Güç: ${strength}%`, 8, H - 10)
+  }, [fieldType, strength])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>F = qv×B</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Alan tipi</div>
+          <select value={fieldType} onChange={e => setFieldType(e.target.value)}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            <option value="dipole">Mıknatıs (dipol)</option>
+            <option value="uniform">Uniform alan</option>
+            <option value="solenoid">Tel / solenoid</option>
+          </select>
+        </div>
+        <Ctrl label="Güç" min={10} max={100} step={5} value={strength} onChange={setStrength} unit="%" />
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 24. SİNİR İLETİMİ / AKSİYON POTANSİYELİ ────────────────────
+export function ActionPotential({ kavram = 'Aksiyon Potansiyeli', aciklama }) {
+  const canvasRef = useRef()
+  const [running, setRunning] = useState(true)
+  const [speed, setSpeed] = useState(1)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current * speed
+
+      // Nöron gövdesi
+      const neuronY = H * 0.35
+      // Akson
+      ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 22; ctx.lineCap = 'round'
+      ctx.beginPath(); ctx.moveTo(60, neuronY); ctx.lineTo(W - 40, neuronY); ctx.stroke()
+      ctx.strokeStyle = '#f0ece6'; ctx.lineWidth = 18
+      ctx.beginPath(); ctx.moveTo(60, neuronY); ctx.lineTo(W - 40, neuronY); ctx.stroke()
+
+      // Miyelin kılıfları
+      for (let i = 0; i < 7; i++) {
+        const mx = 80 + i * 70
+        ctx.fillStyle = '#fef9c3'
+        ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1
+        ctx.beginPath(); ctx.ellipse(mx + 25, neuronY, 28, 14, 0, 0, Math.PI * 2)
+        ctx.fill(); ctx.stroke()
+      }
+
+      // Ranvier düğümleri (uyarı geçişi)
+      const pulse = (t * 80) % (W - 100)
+      for (let i = 0; i < 7; i++) {
+        const nx = 80 + i * 70 + 50
+        const dist = Math.abs(pulse - (nx - 60))
+        const intensity = Math.max(0, 1 - dist / 40)
+        if (intensity > 0) {
+          ctx.beginPath(); ctx.arc(nx, neuronY, 8, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(239,68,68,${intensity})`; ctx.fill()
+        }
+        ctx.beginPath(); ctx.arc(nx, neuronY, 6, 0, Math.PI * 2)
+        ctx.fillStyle = '#fff'; ctx.fill()
+        ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 1; ctx.stroke()
+      }
+
+      // Soma (hücre gövdesi)
+      const sg = ctx.createRadialGradient(52, neuronY - 5, 2, 55, neuronY, 22)
+      sg.addColorStop(0, '#fde68a'); sg.addColorStop(1, '#f59e0b')
+      ctx.beginPath(); ctx.arc(55, neuronY, 22, 0, Math.PI * 2)
+      ctx.fillStyle = sg; ctx.fill()
+      ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.5; ctx.stroke()
+      ctx.fillStyle = '#78350f'; ctx.font = 'bold 9px Inter'
+      ctx.textAlign = 'center'; ctx.fillText('Soma', 55, neuronY + 3)
+
+      // Aksiyon potansiyeli grafiği (altta)
+      const gx = 40, gy = H * 0.72, gw = W - 80, gh = 65
+      ctx.fillStyle = '#f7f5f0'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(gx, gy - gh, gw, gh * 1.5)
+      ctx.strokeRect(gx, gy - gh, gw, gh * 1.5)
+
+      // Etiketler
+      ctx.fillStyle = '#6b6560'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText('+40mV', gx - 36, gy - gh + 8)
+      ctx.fillText('  0mV', gx - 36, gy - gh / 2)
+      ctx.fillText('-70mV', gx - 36, gy + 4)
+
+      // Membran potansiyeli grafiği
+      ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 2
+      ctx.beginPath()
+      for (let px = 0; px < gw; px++) {
+        const xt = px / gw
+        const phase = (xt - (t * 0.15) % 1 + 1) % 1
+        let v
+        if (phase < 0.1) v = -70 + phase / 0.1 * 110
+        else if (phase < 0.2) v = 40 - (phase - 0.1) / 0.1 * 90
+        else if (phase < 0.35) v = -50 - (phase - 0.2) / 0.15 * 25
+        else v = -75 + (phase - 0.35) / 0.65 * 5
+        const py = gy - (v + 70) / 110 * (gh * 1.4)
+        px === 0 ? ctx.moveTo(gx + px, py) : ctx.lineTo(gx + px, py)
+      }
+      ctx.stroke()
+
+      // Faz etiketleri
+      const phases = [['Dinlenme', 0.05], ['Depolarizasyon', 0.15], ['Repolarizasyon', 0.28], ['Hiperpolar.', 0.42]]
+      phases.forEach(([label, xf]) => {
+        ctx.fillStyle = '#a09990'; ctx.font = '8px JetBrains Mono'; ctx.textAlign = 'center'
+        ctx.fillText(label, gx + xf * gw, gy + gh * 0.6)
+      })
+
+      ctx.textAlign = 'left'
+      ctx.fillStyle = '#3d5af1'; ctx.font = 'bold 11px JetBrains Mono'
+      ctx.fillText('Aksiyon Potansiyeli', gx, gy - gh - 6)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [running, speed])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>-70mV → +40mV</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Hız" min={0.3} max={3} value={speed} onChange={setSpeed} unit="x" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 25. TERMODİNAMİK — GAZ MOLEKÜLLERİ ─────────────────────────
+export function GasMolecules({ kavram = 'İdeal Gaz / Kinetik Teori', aciklama }) {
+  const canvasRef = useRef()
+  const [temp, setTemp] = useState(300)
+  const [N, setN] = useState(40)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const particles = useRef([])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const W = canvas.width, H = canvas.height * 0.75
+    particles.current = Array.from({ length: N }, () => ({
+      x: 20 + Math.random() * (W - 40),
+      y: 20 + Math.random() * (H - 40),
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4,
+      r: 6,
+    }))
+  }, [N])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const boxH = H * 0.72
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+      const speedFactor = Math.sqrt(temp / 300)
+
+      // Kutu
+      ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 2
+      ctx.strokeRect(10, 10, W - 20, boxH - 10)
+      ctx.fillStyle = 'rgba(239,246,255,0.3)'; ctx.fillRect(10, 10, W - 20, boxH - 10)
+
+      // Partiküller
+      particles.current.forEach(p => {
+        if (running) {
+          p.x += p.vx * speedFactor
+          p.y += p.vy * speedFactor
+          if (p.x < 10 + p.r || p.x > W - 10 - p.r) { p.vx *= -1; p.x = Math.max(10 + p.r, Math.min(W - 10 - p.r, p.x)) }
+          if (p.y < 10 + p.r || p.y > boxH - 10 - p.r) { p.vy *= -1; p.y = Math.max(10 + p.r, Math.min(boxH - 10 - p.r, p.y)) }
+        }
+        const speed = Math.hypot(p.vx, p.vy) * speedFactor
+        const hue = 240 - speed * 20
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = `hsla(${hue}, 80%, 55%, 0.85)`; ctx.fill()
+      })
+
+      // Bilgi
+      const P = (N * temp / 5000).toFixed(2)
+      ctx.fillStyle = '#1a1814'; ctx.font = '11px JetBrains Mono'
+      ctx.fillText(`T = ${temp} K  |  N = ${N}  |  P ∝ ${P}`, 16, H - 20)
+      ctx.fillText(`PV = NkT`, 16, H - 6)
+
+      // Termometre göstergesi
+      const barH = boxH - 30
+      const tRatio = (temp - 100) / 900
+      ctx.fillStyle = '#e8e4dc'; ctx.fillRect(W - 28, 20, 14, barH)
+      ctx.fillStyle = temp > 600 ? '#ef4444' : temp > 350 ? '#f59e0b' : '#3b82f6'
+      ctx.fillRect(W - 28, 20 + barH * (1 - tRatio), 14, barH * tRatio)
+      ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1; ctx.strokeRect(W - 28, 20, 14, barH)
+      ctx.fillStyle = '#6b6560'; ctx.font = '9px JetBrains Mono'
+      ctx.textAlign = 'right'; ctx.fillText('1000K', W - 32, 26)
+      ctx.fillText('100K', W - 32, boxH - 6)
+      ctx.textAlign = 'left'
+
+      if (running) rafRef.current = requestAnimationFrame(draw)
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [temp, N, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>PV = NkT</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Sıcaklık T" min={100} max={1000} step={10} value={temp} onChange={setTemp} unit=" K" />
+        <Ctrl label="Molekül sayısı N" min={10} max={80} step={5} value={N} onChange={setN} unit="" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 26. DOPPLER ETKİSİ ───────────────────────────────────────────
+export function DopplerEffect({ kavram = 'Doppler Etkisi', aciklama }) {
+  const canvasRef = useRef()
+  const [sourceSpeed, setSourceSpeed] = useState(0.4)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+  const wavesRef = useRef([])
+  const sourceRef = useRef({ x: 100 })
+
+  useEffect(() => {
+    wavesRef.current = []
+    sourceRef.current = { x: 100 }
+    tRef.current = 0
+  }, [sourceSpeed])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cy = H / 2
+    const soundSpeed = 120
+
+    let lastWave = 0
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+
+      if (running) {
+        sourceRef.current.x += sourceSpeed * 2
+        if (sourceRef.current.x > W + 20) sourceRef.current.x = -20
+
+        if (t - lastWave > 0.4) {
+          wavesRef.current.push({ cx: sourceRef.current.x, cy, r: 0 })
+          lastWave = t
+        }
+
+        wavesRef.current.forEach(w => { w.r += soundSpeed * 0.016 })
+        wavesRef.current = wavesRef.current.filter(w => w.r < W)
+      }
+
+      // Dalga daireleri
+      wavesRef.current.forEach((w, i) => {
+        ctx.beginPath(); ctx.arc(w.cx, w.cy, w.r, 0, Math.PI * 2)
+        ctx.strokeStyle = `rgba(61,90,241,${0.6 - w.r / W * 0.5})`
+        ctx.lineWidth = 1.5; ctx.stroke()
+      })
+
+      // Kaynak
+      ctx.beginPath(); ctx.arc(sourceRef.current.x, cy, 14, 0, Math.PI * 2)
+      ctx.fillStyle = '#ef4444'; ctx.fill()
+      ctx.fillStyle = 'white'; ctx.font = 'bold 9px Inter'
+      ctx.textAlign = 'center'; ctx.fillText('🔊', sourceRef.current.x, cy + 3)
+
+      // Gözlemciler
+      ;[[60, '👂', 'Önde'], [W - 60, '👂', 'Arkada']].forEach(([ox, icon, label]) => {
+        ctx.fillStyle = '#0f7a5a'; ctx.font = '20px serif'
+        ctx.textAlign = 'center'; ctx.fillText(icon, ox, cy + 6)
+        ctx.fillStyle = '#6b6560'; ctx.font = '9px JetBrains Mono'
+        ctx.fillText(label, ox, cy + 24)
+      })
+
+      // Frekans hesabı
+      const v = sourceSpeed * 100
+      const fObs1 = (1 / (1 - v / soundSpeed)).toFixed(2)
+      const fObs2 = (1 / (1 + v / soundSpeed)).toFixed(2)
+
+      ctx.fillStyle = 'rgba(247,245,240,0.95)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(8, 8, 200, 55); ctx.strokeRect(8, 8, 200, 55)
+      ctx.fillStyle = '#3d5af1'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText(`v_kaynak = ${v.toFixed(0)} m/s`, 14, 24)
+      ctx.fillStyle = '#0f7a5a'; ctx.fillText(`f_önde = ${fObs1} f₀ (tiz)`, 14, 40)
+      ctx.fillStyle = '#b45309'; ctx.fillText(`f_arkada = ${fObs2} f₀ (pes)`, 14, 56)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [sourceSpeed, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>f' = f·(v±v_o)/(v∓v_s)</span></div>
+      <canvas ref={canvasRef} width={600} height={240} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Kaynak hızı" min={0} max={0.9} step={0.05} value={sourceSpeed} onChange={setSourceSpeed} unit="×c_ses" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 27. PERİYODİK TABLO ─────────────────────────────────────────
+export function PeriodicTable({ kavram = 'Periyodik Tablo', aciklama }) {
+  const [selected, setSelected] = useState(null)
+  const [filter, setFilter] = useState('all')
+
+  const elements = [
+    {n:1,sym:'H',name:'Hidrojen',mass:1.008,cat:'nonmetal',period:1,group:1},
+    {n:2,sym:'He',name:'Helyum',mass:4.003,cat:'noble',period:1,group:18},
+    {n:3,sym:'Li',name:'Lityum',mass:6.941,cat:'alkali',period:2,group:1},
+    {n:4,sym:'Be',name:'Berilyum',mass:9.012,cat:'alkaline',period:2,group:2},
+    {n:5,sym:'B',name:'Bor',mass:10.81,cat:'metalloid',period:2,group:13},
+    {n:6,sym:'C',name:'Karbon',mass:12.011,cat:'nonmetal',period:2,group:14},
+    {n:7,sym:'N',name:'Azot',mass:14.007,cat:'nonmetal',period:2,group:15},
+    {n:8,sym:'O',name:'Oksijen',mass:15.999,cat:'nonmetal',period:2,group:16},
+    {n:9,sym:'F',name:'Flor',mass:18.998,cat:'halogen',period:2,group:17},
+    {n:10,sym:'Ne',name:'Neon',mass:20.18,cat:'noble',period:2,group:18},
+    {n:11,sym:'Na',name:'Sodyum',mass:22.99,cat:'alkali',period:3,group:1},
+    {n:12,sym:'Mg',name:'Magnezyum',mass:24.305,cat:'alkaline',period:3,group:2},
+    {n:13,sym:'Al',name:'Alüminyum',mass:26.982,cat:'metal',period:3,group:13},
+    {n:14,sym:'Si',name:'Silisyum',mass:28.086,cat:'metalloid',period:3,group:14},
+    {n:15,sym:'P',name:'Fosfor',mass:30.974,cat:'nonmetal',period:3,group:15},
+    {n:16,sym:'S',name:'Kükürt',mass:32.065,cat:'nonmetal',period:3,group:16},
+    {n:17,sym:'Cl',name:'Klor',mass:35.453,cat:'halogen',period:3,group:17},
+    {n:18,sym:'Ar',name:'Argon',mass:39.948,cat:'noble',period:3,group:18},
+    {n:19,sym:'K',name:'Potasyum',mass:39.098,cat:'alkali',period:4,group:1},
+    {n:20,sym:'Ca',name:'Kalsiyum',mass:40.078,cat:'alkaline',period:4,group:2},
+    {n:26,sym:'Fe',name:'Demir',mass:55.845,cat:'transition',period:4,group:8},
+    {n:29,sym:'Cu',name:'Bakır',mass:63.546,cat:'transition',period:4,group:11},
+    {n:30,sym:'Zn',name:'Çinko',mass:65.38,cat:'transition',period:4,group:12},
+    {n:47,sym:'Ag',name:'Gümüş',mass:107.87,cat:'transition',period:5,group:11},
+    {n:79,sym:'Au',name:'Altın',mass:196.97,cat:'transition',period:6,group:11},
+    {n:80,sym:'Hg',name:'Cıva',mass:200.59,cat:'transition',period:6,group:12},
+    {n:82,sym:'Pb',name:'Kurşun',mass:207.2,cat:'metal',period:6,group:14},
+    {n:92,sym:'U',name:'Uranyum',mass:238.03,cat:'actinide',period:7,group:3},
+  ]
+
+  const catColors = {
+    alkali:'#fecaca', alkaline:'#fed7aa', transition:'#e9d5ff',
+    metal:'#d1d5db', metalloid:'#a7f3d0', nonmetal:'#bfdbfe',
+    halogen:'#fde68a', noble:'#fbcfe8', actinide:'#fef08a', lanthanide:'#ddd6fe'
+  }
+
+  const filtered = filter === 'all' ? elements : elements.filter(e => e.cat === filter)
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>28 Element</span></div>
+      <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {['all','alkali','alkaline','transition','nonmetal','noble','halogen','metalloid'].map(cat => (
+          <button key={cat} onClick={() => setFilter(cat)} style={{
+            padding: '2px 8px', borderRadius: '100px', border: `1px solid ${filter === cat ? 'var(--accent)' : 'var(--border2)'}`,
+            background: filter === cat ? catColors[cat] || 'var(--accent-light)' : 'transparent',
+            color: filter === cat ? '#1a1814' : 'var(--ink3)', fontSize: '0.7rem', cursor: 'pointer', fontFamily: 'var(--font-mono)'
+          }}>{cat === 'all' ? 'Hepsi' : cat}</button>
+        ))}
+      </div>
+      <div style={{ padding: '12px', display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '240px', overflowY: 'auto' }}>
+        {filtered.map(el => (
+          <div key={el.n} onClick={() => setSelected(el)} style={{
+            width: '52px', padding: '4px', borderRadius: '6px', cursor: 'pointer', textAlign: 'center',
+            background: selected?.n === el.n ? (catColors[el.cat] || '#eef0fe') : catColors[el.cat] + '88' || '#f7f5f0',
+            border: `1px solid ${selected?.n === el.n ? '#3d5af1' : 'transparent'}`,
+            transition: 'all 0.15s',
+          }}>
+            <div style={{ fontSize: '0.6rem', color: '#a09990', fontFamily: 'var(--font-mono)' }}>{el.n}</div>
+            <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1814', lineHeight: 1.1 }}>{el.sym}</div>
+            <div style={{ fontSize: '0.55rem', color: '#6b6560', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{el.name}</div>
+          </div>
+        ))}
+      </div>
+      {selected && (
+        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', background: catColors[selected.cat] + '44', display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#1a1814', fontFamily: 'var(--font-display)', minWidth: '60px', textAlign: 'center' }}>{selected.sym}</div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1814' }}>{selected.name}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#6b6560', marginTop: '2px' }}>
+              Z = {selected.n} | A = {selected.mass} | Periyot {selected.period} | Grup {selected.group}
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#3d5af1', marginTop: '2px' }}>
+              {selected.cat}
+            </div>
+          </div>
+        </div>
+      )}
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 28. ASİT-BAZ TİTRASYONU ─────────────────────────────────────
+export function Titration({ kavram = 'Asit-Baz Titrasyonu', aciklama }) {
+  const canvasRef = useRef()
+  const [volume, setVolume] = useState(0)
+  const [acidConc, setAcidConc] = useState(0.1)
+
+  const pH = (() => {
+    const eqV = 25
+    if (volume < eqV) {
+      const molesAcid = acidConc * (25 - volume) / 1000
+      const totalV = (25 + volume) / 1000
+      const H = molesAcid / totalV
+      return Math.max(0, -Math.log10(H))
+    } else if (volume === eqV) return 7
+    else {
+      const molesBase = 0.1 * (volume - eqV) / 1000
+      const totalV = (25 + volume) / 1000
+      const OH = molesBase / totalV
+      const pOH = -Math.log10(OH)
+      return Math.min(14, 14 - pOH)
+    }
+  })()
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const gx = 50, gy = 20, gw = W - 80, gh = H - 60
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    // Grid
+    ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    for (let py = 0; py <= 14; py += 2) {
+      const y = gy + gh - (py / 14) * gh
+      ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx + gw, y); ctx.stroke()
+      ctx.fillStyle = '#a09990'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'right'
+      ctx.fillText(py, gx - 4, y + 3)
+    }
+
+    // Eksenler
+    ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy + gh); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(gx, gy + gh); ctx.lineTo(gx + gw, gy + gh); ctx.stroke()
+
+    // pH renk gradyanı arka plan
+    for (let y = gy; y < gy + gh; y++) {
+      const pHy = 14 * (1 - (y - gy) / gh)
+      let color
+      if (pHy < 3) color = `rgba(239,68,68,0.08)`
+      else if (pHy < 5) color = `rgba(245,158,11,0.08)`
+      else if (pHy < 9) color = `rgba(16,185,129,0.08)`
+      else color = `rgba(59,130,246,0.08)`
+      ctx.fillStyle = color
+      ctx.fillRect(gx + 1, y, gw - 1, 1)
+    }
+
+    // pH eğrisi
+    ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 2.5
+    ctx.beginPath()
+    for (let v = 0; v <= 50; v++) {
+      const x = gx + (v / 50) * gw
+      let ph
+      if (v < 25) {
+        const molesA = acidConc * (25 - v) / 1000
+        const totV = (25 + v) / 1000
+        const H = molesA / totV
+        ph = Math.max(0, -Math.log10(H))
+      } else if (v === 25) ph = 7
+      else {
+        const molesB = 0.1 * (v - 25) / 1000
+        const totV = (25 + v) / 1000
+        const OH = molesB / totV
+        ph = Math.min(14, 14 + Math.log10(OH))
+      }
+      const y = gy + gh - (ph / 14) * gh
+      v === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+
+    // Denklik noktası
+    const eqX = gx + (25 / 50) * gw
+    const eqY = gy + gh / 2
+    ctx.beginPath(); ctx.arc(eqX, eqY, 6, 0, Math.PI * 2)
+    ctx.fillStyle = '#ef4444'; ctx.fill()
+    ctx.setLineDash([4, 6])
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1
+    ctx.beginPath(); ctx.moveTo(eqX, gy); ctx.lineTo(eqX, gy + gh); ctx.stroke()
+    ctx.setLineDash([])
+
+    // Mevcut nokta
+    const curX = gx + (volume / 50) * gw
+    const curY = gy + gh - (pH / 14) * gh
+    ctx.beginPath(); ctx.arc(curX, curY, 7, 0, Math.PI * 2)
+    ctx.fillStyle = '#3d5af1'; ctx.fill()
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.stroke()
+
+    // Etiketler
+    ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center'
+    ctx.fillText('V_baz (mL)', gx + gw / 2, gy + gh + 18)
+    ctx.save(); ctx.translate(12, gy + gh / 2); ctx.rotate(-Math.PI / 2)
+    ctx.fillText('pH', 0, 0); ctx.restore()
+    ctx.fillText('Denklik', eqX, gy + 12)
+
+    // pH göstergesi
+    const phColor = pH < 3 ? '#ef4444' : pH < 5 ? '#f59e0b' : pH < 9 ? '#10b981' : '#3b82f6'
+    ctx.fillStyle = 'rgba(247,245,240,0.95)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    ctx.fillRect(gx + gw - 90, gy + 4, 88, 36); ctx.strokeRect(gx + gw - 90, gy + 4, 88, 36)
+    ctx.fillStyle = phColor; ctx.font = 'bold 18px JetBrains Mono'; ctx.textAlign = 'center'
+    ctx.fillText(`pH = ${pH.toFixed(2)}`, gx + gw - 46, gy + 28)
+    ctx.textAlign = 'left'
+  }, [volume, acidConc])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>HCl + NaOH → NaCl + H₂O</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Eklenen baz (mL)" min={0} max={50} step={0.5} value={volume} onChange={setVolume} unit=" mL" />
+        <Ctrl label="Asit konsantr." min={0.01} max={0.5} step={0.01} value={acidConc} onChange={setAcidConc} unit=" M" />
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: pH < 7 ? 'var(--red)' : pH > 7 ? 'var(--blue)' : 'var(--green)' }}>
+          pH = {pH.toFixed(2)} {pH < 7 ? '(Asit)' : pH > 7 ? '(Baz)' : '(Nötr)'}
+        </div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 29. LOTKA-VOLTERRA (AVCI-AV) ────────────────────────────────
+export function LotkaVolterra({ kavram = 'Av-Avcı Dengesi', aciklama }) {
+  const canvasRef = useRef()
+  const [alpha, setAlpha] = useState(0.4)
+  const [delta, setDelta] = useState(0.3)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const stateRef = useRef({ prey: 40, pred: 10, t: 0, history: [] })
+
+  useEffect(() => {
+    stateRef.current = { prey: 40, pred: 10, t: 0, history: [] }
+  }, [alpha, delta])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const gx = 50, gy = 10, gw = W - 60, gh = H - 50
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+      const s = stateRef.current
+      if (running) {
+        const dt = 0.05
+        const beta = 0.01, gamma = 0.3
+        const dPrey = (alpha * s.prey - beta * s.prey * s.pred) * dt
+        const dPred = (delta * beta * s.prey * s.pred - gamma * s.pred) * dt
+        s.prey = Math.max(0.1, s.prey + dPrey)
+        s.pred = Math.max(0.1, s.pred + dPred)
+        s.t += dt
+        s.history.push({ prey: s.prey, pred: s.pred })
+        if (s.history.length > 800) s.history.shift()
+      }
+
+      // Eksenler
+      ctx.strokeStyle = '#d4cfc8'; ctx.lineWidth = 1
+      ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy + gh); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(gx, gy + gh); ctx.lineTo(gx + gw, gy + gh); ctx.stroke()
+
+      // Grid
+      for (let i = 0; i <= 4; i++) {
+        const y = gy + i * gh / 4
+        ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 0.5
+        ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx + gw, y); ctx.stroke()
+        ctx.fillStyle = '#a09990'; ctx.font = '8px JetBrains Mono'; ctx.textAlign = 'right'
+        ctx.fillText(Math.round(100 * (1 - i / 4)), gx - 4, y + 3)
+      }
+
+      // Av eğrisi (yeşil)
+      const maxVal = 150
+      if (s.history.length > 1) {
+        ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2
+        ctx.beginPath()
+        s.history.forEach((h, i) => {
+          const x = gx + (i / s.history.length) * gw
+          const y = gy + gh - Math.min(1, h.prey / maxVal) * gh
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+        })
+        ctx.stroke()
+
+        // Avcı eğrisi (kırmızı)
+        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2
+        ctx.beginPath()
+        s.history.forEach((h, i) => {
+          const x = gx + (i / s.history.length) * gw
+          const y = gy + gh - Math.min(1, h.pred / maxVal) * gh
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+        })
+        ctx.stroke()
+      }
+
+      // Anlık değerler
+      ctx.fillStyle = 'rgba(247,245,240,0.95)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(gx + 8, gy + 8, 160, 55); ctx.strokeRect(gx + 8, gy + 8, 160, 55)
+      ctx.fillStyle = '#10b981'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText(`🐇 Av: ${s.prey.toFixed(1)}`, gx + 14, gy + 26)
+      ctx.fillStyle = '#ef4444'
+      ctx.fillText(`🦊 Avcı: ${s.pred.toFixed(1)}`, gx + 14, gy + 42)
+      ctx.fillStyle = '#6b6560'; ctx.font = '9px JetBrains Mono'
+      ctx.fillText(`t = ${s.t.toFixed(0)}`, gx + 14, gy + 56)
+
+      ctx.fillStyle = '#6b6560'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'center'
+      ctx.fillText('Zaman →', gx + gw / 2, gy + gh + 18)
+
+      if (running) rafRef.current = requestAnimationFrame(draw)
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [alpha, delta, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Lotka-Volterra</span></div>
+      <canvas ref={canvasRef} width={600} height={260} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Av üreme hızı α" min={0.1} max={1} step={0.05} value={alpha} onChange={setAlpha} unit="" />
+        <Ctrl label="Avcı verimlilik δ" min={0.1} max={0.8} step={0.05} value={delta} onChange={setDelta} unit="" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+        <button style={S.btn} onClick={() => { stateRef.current = { prey: 40, pred: 10, t: 0, history: [] } }}>↺</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 30. İNTEGRAL — RİEMANN TOPLAMI ─────────────────────────────
+export function RiemannIntegral({ kavram = 'İntegral — Riemann Toplamı', aciklama }) {
+  const canvasRef = useRef()
+  const [n, setN] = useState(8)
+  const [a, setA] = useState(0)
+  const [b, setBParam] = useState(3)
+  const [funcIdx, setFuncIdx] = useState(0)
+
+  const funcs = [
+    { label: 'x²', fn: x => x * x, exact: (a, b) => (b**3 - a**3) / 3 },
+    { label: 'sin(x)', fn: x => Math.sin(x) * 2 + 2, exact: (a, b) => (-Math.cos(b) + Math.cos(a)) * 2 + 2*(b-a) },
+    { label: '√x', fn: x => Math.sqrt(Math.max(0, x)) * 2, exact: (a, b) => (2/3 * (b**1.5 - a**1.5)) * 2 },
+    { label: 'e^(0.3x)', fn: x => Math.exp(x * 0.3), exact: (a, b) => (Math.exp(b*0.3) - Math.exp(a*0.3)) / 0.3 },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const padL = 50, padR = 20, padT = 20, padB = 40
+    const gw = W - padL - padR, gh = H - padT - padB
+
+    const fn = funcs[funcIdx].fn
+    const range = b - a || 0.01
+    const dx = range / n
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    const maxY = Math.max(...Array.from({length: 100}, (_, i) => fn(a + i * range / 100))) * 1.2 || 1
+
+    const toX = x => padL + (x - a) / range * gw
+    const toY = y => padT + gh - (y / maxY) * gh
+
+    // Riemann dikdörtgenleri
+    let riemannSum = 0
+    for (let i = 0; i < n; i++) {
+      const xi = a + i * dx
+      const yi = fn(xi + dx / 2)
+      riemannSum += yi * dx
+      const px = toX(xi), pw = gw / n
+      ctx.fillStyle = 'rgba(61,90,241,0.2)'
+      ctx.strokeStyle = '#3d5af1'; ctx.lineWidth = 1
+      ctx.fillRect(px, toY(yi), pw, toY(0) - toY(yi))
+      ctx.strokeRect(px, toY(yi), pw, toY(0) - toY(yi))
+    }
+
+    // Eksen
+    ctx.strokeStyle = '#a09990'; ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + gh); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(padL, padT + gh); ctx.lineTo(W - padR, padT + gh); ctx.stroke()
+
+    // Fonksiyon eğrisi
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2.5
+    ctx.beginPath()
+    for (let i = 0; i <= 200; i++) {
+      const x = a + i / 200 * range
+      const y = fn(x)
+      const px = toX(x), py = toY(y)
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
+    }
+    ctx.stroke()
+
+    // Etiketler
+    const exact = funcs[funcIdx].exact(a, b)
+    const error = Math.abs((riemannSum - exact) / exact * 100).toFixed(1)
+    ctx.fillStyle = '#3d5af1'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'left'
+    ctx.fillText(`∫${funcs[funcIdx].label} dx ≈ ${riemannSum.toFixed(3)}`, padL + 4, padT + 18)
+    ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+    ctx.fillText(`Gerçek: ${exact.toFixed(3)} | Hata: ${error}%`, padL + 4, padT + 34)
+    ctx.fillText(`n = ${n} dikdörtgen`, padL + 4, padT + 50)
+  }, [n, a, b, funcIdx])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>∫f(x)dx = lim Σf(xᵢ)Δx</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Fonksiyon</div>
+          <select value={funcIdx} onChange={e => setFuncIdx(+e.target.value)}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            {funcs.map((f, i) => <option key={i} value={i}>{f.label}</option>)}
+          </select>
+        </div>
+        <Ctrl label="Dikdörtgen sayısı n" min={1} max={50} step={1} value={n} onChange={setN} unit="" />
+        <Ctrl label="Alt sınır a" min={0} max={2} step={0.5} value={a} onChange={setA} unit="" />
+        <Ctrl label="Üst sınır b" min={1} max={5} step={0.5} value={b} onChange={setBParam} unit="" />
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 31. GÜNEŞ SİSTEMİ ───────────────────────────────────────────
+export function SolarSystem({ kavram = 'Güneş Sistemi', aciklama }) {
+  const canvasRef = useRef()
+  const [speed, setSpeed] = useState(1)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const planets = [
+    { name: 'Merkür', r: 48, period: 0.24, size: 4, color: '#9ca3af' },
+    { name: 'Venüs', r: 72, period: 0.62, size: 6, color: '#fbbf24' },
+    { name: 'Dünya', r: 100, period: 1, size: 7, color: '#3b82f6' },
+    { name: 'Mars', r: 130, period: 1.88, size: 5, color: '#ef4444' },
+    { name: 'Jüpiter', r: 175, period: 11.86, size: 14, color: '#f59e0b' },
+    { name: 'Satürn', r: 215, period: 29.5, size: 11, color: '#fde68a', ring: true },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#07090f'; ctx.fillRect(0, 0, W, H)
+
+      // Yıldızlar
+      for (let i = 0; i < 60; i++) {
+        const sx = (i * 137 + 20) % W, sy = (i * 97 + 15) % H
+        ctx.beginPath(); ctx.arc(sx, sy, 0.8, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + (i % 4) * 0.15})`; ctx.fill()
+      }
+
+      const t = tRef.current * speed
+
+      // Güneş
+      const sg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 20)
+      sg.addColorStop(0, '#fef08a'); sg.addColorStop(0.6, '#f59e0b'); sg.addColorStop(1, '#d97706')
+      ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 20
+      ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2)
+      ctx.fillStyle = sg; ctx.fill()
+      ctx.shadowBlur = 0
+
+      planets.forEach(p => {
+        // Yörünge
+        ctx.beginPath(); ctx.arc(cx, cy, p.r, 0, Math.PI * 2)
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke()
+
+        const angle = (t / p.period) * Math.PI * 2
+        const px = cx + Math.cos(angle) * p.r
+        const py = cy + Math.sin(angle) * p.r
+
+        // Satürn halkası
+        if (p.ring) {
+          ctx.save(); ctx.translate(px, py); ctx.rotate(0.3)
+          ctx.beginPath(); ctx.ellipse(0, 0, p.size + 8, p.size * 0.35, 0, 0, Math.PI * 2)
+          ctx.strokeStyle = 'rgba(253,230,138,0.5)'; ctx.lineWidth = 3; ctx.stroke()
+          ctx.restore()
+        }
+
+        // Gezegen
+        ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2)
+        ctx.fillStyle = p.color; ctx.fill()
+
+        // Dünya için ay
+        if (p.name === 'Dünya') {
+          const moonAngle = t * 12 * Math.PI * 2
+          const mx = px + Math.cos(moonAngle) * 16
+          const my = py + Math.sin(moonAngle) * 8
+          ctx.beginPath(); ctx.arc(mx, my, 2.5, 0, Math.PI * 2)
+          ctx.fillStyle = '#d1d5db'; ctx.fill()
+        }
+
+        // Etiket
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '8px JetBrains Mono'
+        ctx.textAlign = 'center'; ctx.fillText(p.name, px, py - p.size - 4)
+      })
+
+      ctx.textAlign = 'left'
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [speed, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>6 Gezegen</span></div>
+      <canvas ref={canvasRef} width={600} height={460} style={{ ...S.canvas, width: '100%', background: '#07090f' }} />
+      <div style={S.controls}>
+        <Ctrl label="Hız" min={0.1} max={5} value={speed} onChange={setSpeed} unit="x" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 32. MATRİS DÖNÜŞÜMÜ ─────────────────────────────────────────
+export function MatrixTransform({ kavram = 'Matris Dönüşümleri', aciklama }) {
+  const canvasRef = useRef()
+  const [transformIdx, setTransformIdx] = useState(0)
+  const [param, setParam] = useState(45)
+
+  const transforms = [
+    { label: 'Döndürme', fn: (x, y, t) => [x*Math.cos(t) - y*Math.sin(t), x*Math.sin(t) + y*Math.cos(t)] },
+    { label: 'Ölçekleme', fn: (x, y, t) => [x*t, y*t] },
+    { label: 'Yatay kaydırma', fn: (x, y, t) => [x + y*t, y] },
+    { label: 'Dikey kaydırma', fn: (x, y, t) => [x, y + x*t] },
+    { label: 'Yatay yansıma', fn: (x, y) => [x, -y] },
+  ]
+
+  const shapes = [
+    { points: [[1,0],[0,1],[-1,0],[0,-1]], color: '#3d5af1', label: 'Kare' },
+    { points: [[1.5,0],[0,1],[-1.5,0]], color: '#0f7a5a', label: 'Üçgen' },
+    { points: [[1,0.5],[0.5,1],[-0.5,1],[-1,0.5],[-1,-0.5],[-0.5,-1],[0.5,-1],[1,-0.5]], color: '#b45309', label: 'Sekizgen' },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+    const scale = 80
+    const t = transformIdx === 0 ? param * Math.PI / 180 : (transformIdx === 1 ? param / 45 : param / 45)
+
+    ctx.clearRect(0, 0, W, H)
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+
+    // Grid
+    ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    for (let x = cx % scale; x < W; x += scale) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
+    for (let y = cy % scale; y < H; y += scale) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
+
+    // Eksenler
+    ctx.strokeStyle = '#a09990'; ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke()
+
+    const tf = transforms[transformIdx].fn
+
+    shapes.forEach(shape => {
+      // Orijinal (soluk)
+      ctx.globalAlpha = 0.3
+      ctx.strokeStyle = shape.color; ctx.lineWidth = 1.5
+      ctx.beginPath()
+      shape.points.forEach(([x, y], i) => {
+        const px = cx + x * scale, py = cy - y * scale
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
+      })
+      ctx.closePath(); ctx.stroke()
+
+      // Dönüştürülmüş
+      ctx.globalAlpha = 1
+      ctx.strokeStyle = shape.color; ctx.lineWidth = 2.5
+      ctx.beginPath()
+      shape.points.forEach(([x, y], i) => {
+        const [tx, ty] = tf(x, y, t)
+        const px = cx + tx * scale, py = cy - ty * scale
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
+      })
+      ctx.closePath(); ctx.stroke()
+    })
+
+    // Matris gösterimi
+    const labels = {
+      0: `[cos${param}° -sin${param}°]\n[sin${param}°  cos${param}°]`,
+      1: `[${(param/45).toFixed(1)}  0]\n[0  ${(param/45).toFixed(1)}]`,
+      2: `[1  ${(param/45).toFixed(1)}]\n[0  1]`,
+      3: `[1  0]\n[${(param/45).toFixed(1)}  1]`,
+      4: `[1   0]\n[0  -1]`,
+    }
+    ctx.fillStyle = 'rgba(247,245,240,0.95)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+    ctx.fillRect(8, 8, 160, 50); ctx.strokeRect(8, 8, 160, 50)
+    ctx.fillStyle = '#3d5af1'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left'
+    labels[transformIdx].split('\n').forEach((line, i) => ctx.fillText(line, 14, 26 + i * 16))
+  }, [transformIdx, param])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Doğrusal Dönüşüm</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Dönüşüm</div>
+          <select value={transformIdx} onChange={e => setTransformIdx(+e.target.value)}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            {transforms.map((t, i) => <option key={i} value={i}>{t.label}</option>)}
+          </select>
+        </div>
+        {transformIdx !== 4 && <Ctrl label="Parametre" min={-90} max={90} step={5} value={param} onChange={setParam} unit={transformIdx === 0 ? '°' : ''} />}
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 33. LEVHA TEKTONİĞİ ─────────────────────────────────────────
+export function PlateTectonics({ kavram = 'Levha Tektoniği', aciklama }) {
+  const canvasRef = useRef()
+  const [type, setType] = useState('convergent')
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => { tRef.current = 0 }, [type])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+      const shift = running ? Math.min(t * 0.3, 60) : 0
+
+      // Manto
+      const mantle = ctx.createLinearGradient(0, H * 0.55, 0, H)
+      mantle.addColorStop(0, '#fca5a5'); mantle.addColorStop(1, '#dc2626')
+      ctx.fillStyle = mantle; ctx.fillRect(0, H * 0.55, W, H * 0.45)
+      ctx.fillStyle = '#ef4444'; ctx.font = '11px JetBrains Mono'
+      ctx.textAlign = 'center'; ctx.fillText('MANTO (magma)', W / 2, H * 0.75)
+
+      if (type === 'convergent') {
+        // Sol levha
+        ctx.fillStyle = '#6b7280'
+        ctx.beginPath()
+        ctx.moveTo(0, H * 0.3)
+        ctx.lineTo(W / 2 - shift, H * 0.3)
+        ctx.lineTo(W / 2 - shift + 20, H * 0.55)
+        ctx.lineTo(0, H * 0.55)
+        ctx.closePath(); ctx.fill()
+        // Sağ levha (batan)
+        ctx.fillStyle = '#9ca3af'
+        ctx.beginPath()
+        ctx.moveTo(W, H * 0.3)
+        ctx.lineTo(W / 2 + shift, H * 0.3)
+        ctx.lineTo(W / 2 + shift + shift * 0.5, H * 0.55 + shift * 0.3)
+        ctx.lineTo(W, H * 0.55)
+        ctx.closePath(); ctx.fill()
+        // Dağ
+        if (shift > 10) {
+          ctx.fillStyle = '#374151'
+          ctx.beginPath()
+          ctx.moveTo(W / 2 - shift - 20, H * 0.3)
+          ctx.lineTo(W / 2 - shift + (shift * 0.3), H * 0.3 - shift * 0.6)
+          ctx.lineTo(W / 2 - shift + shift * 0.6, H * 0.3)
+          ctx.closePath(); ctx.fill()
+        }
+        ctx.fillStyle = '#1a1814'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center'
+        ctx.fillText('← Yakınsak Sınır →', W / 2, 20)
+        ctx.fillText('Okyanus levhası batar (subdüksiyon)', W / 2, 36)
+      } else if (type === 'divergent') {
+        const gap = shift
+        ctx.fillStyle = '#6b7280'
+        // Sol
+        ctx.fillRect(0, H * 0.3, W / 2 - gap, H * 0.25)
+        // Sağ
+        ctx.fillRect(W / 2 + gap, H * 0.3, W / 2 - gap, H * 0.25)
+        // Yeni magma
+        if (gap > 5) {
+          ctx.fillStyle = '#dc2626'
+          ctx.fillRect(W / 2 - gap, H * 0.3, gap * 2, H * 0.25)
+          ctx.fillStyle = '#fca5a5'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'center'
+          ctx.fillText('Yeni\nkabuk', W / 2, H * 0.42)
+        }
+        ctx.fillStyle = '#1a1814'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center'
+        ctx.fillText('← Iraksak Sınır →', W / 2, 20)
+        ctx.fillText('Levhalar ayrılır, yeni kabuk oluşur', W / 2, 36)
+      } else {
+        // Dönüşüm fayı
+        ctx.fillStyle = '#6b7280'
+        ctx.fillRect(0, H * 0.3 - 2, W, H * 0.25 + 4)
+        // Üst yarı kayıyor
+        ctx.fillStyle = '#4b5563'
+        ctx.fillRect(shift, H * 0.3, W, H * 0.12)
+        // Alt yarı sabit
+        ctx.fillStyle = '#9ca3af'
+        ctx.fillRect(-shift * 0.5, H * 0.42, W, H * 0.13)
+        // Fay çizgisi
+        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.setLineDash([6, 6])
+        ctx.beginPath(); ctx.moveTo(0, H * 0.42); ctx.lineTo(W, H * 0.42); ctx.stroke()
+        ctx.setLineDash([])
+        ctx.fillStyle = '#1a1814'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center'
+        ctx.fillText('Dönüşüm Fayı', W / 2, 20)
+        ctx.fillText('San Andreas örn. — yatay kayma', W / 2, 36)
+      }
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [type, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Plaka Hareketi</span></div>
+      <canvas ref={canvasRef} width={600} height={260} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <div>
+          <div style={S.label}>Sınır tipi</div>
+          <select value={type} onChange={e => { setType(e.target.value); tRef.current = 0 }}
+            style={{ padding: '4px 8px', border: '1px solid #c7cdfa', borderRadius: '6px', background: '#eef0fe', color: '#3d5af1', fontFamily: 'inherit', fontSize: '0.78rem' }}>
+            <option value="convergent">Yakınsak (subdüksiyon)</option>
+            <option value="divergent">Iraksak (sırtlar)</option>
+            <option value="transform">Dönüşüm fayı</option>
+          </select>
+        </div>
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+        <button style={S.btn} onClick={() => { tRef.current = 0 }}>↺</button>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 34. DALGA ENERJİSİ (OKYANUS) ────────────────────────────────
+export function OceanWave({ kavram = 'Dalga Enerjisi', aciklama }) {
+  const canvasRef = useRef()
+  const [waveHeight, setWaveHeight] = useState(50)
+  const [period, setPeriod] = useState(8)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const power = (0.5 * waveHeight * waveHeight * period / 1000).toFixed(2)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Gökyüzü
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.4)
+      sky.addColorStop(0, '#bfdbfe'); sky.addColorStop(1, '#eff6ff')
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H)
+
+      // Derin okyanus
+      ctx.fillStyle = '#1d4ed8'; ctx.fillRect(0, H * 0.4, W, H * 0.6)
+
+      // Dalga
+      const waveY = H * 0.5
+      const amp = (waveHeight / 100) * 60
+      const wavelength = period * 20
+
+      ctx.beginPath()
+      ctx.moveTo(0, waveY)
+      for (let x = 0; x <= W; x++) {
+        const y = waveY + amp * Math.sin(2 * Math.PI * x / wavelength - t * 2)
+        ctx.lineTo(x, y)
+      }
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath()
+
+      const wg = ctx.createLinearGradient(0, waveY - amp, 0, H)
+      wg.addColorStop(0, '#60a5fa'); wg.addColorStop(0.3, '#2563eb'); wg.addColorStop(1, '#1e40af')
+      ctx.fillStyle = wg; ctx.fill()
+
+      // Köpük
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2
+      ctx.beginPath()
+      for (let x = 0; x <= W; x++) {
+        const y = waveY + amp * Math.sin(2 * Math.PI * x / wavelength - t * 2)
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+
+      // Enerji dönüştürücü
+      const buoyX = W * 0.6, buoyY = waveY + amp * Math.sin(2 * Math.PI * buoyX / wavelength - t * 2)
+      ctx.fillStyle = '#f59e0b'
+      ctx.beginPath(); ctx.arc(buoyX, buoyY, 14, 0, Math.PI * 2); ctx.fill()
+      ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.5; ctx.stroke()
+      ctx.fillStyle = '#78350f'; ctx.font = '8px Inter'; ctx.textAlign = 'center'
+      ctx.fillText('⚡', buoyX, buoyY + 3)
+      ctx.strokeStyle = '#374151'; ctx.lineWidth = 2; ctx.setLineDash([4, 4])
+      ctx.beginPath(); ctx.moveTo(buoyX, buoyY + 14); ctx.lineTo(buoyX, H * 0.85); ctx.stroke()
+      ctx.setLineDash([])
+
+      // Güç
+      ctx.fillStyle = 'rgba(255,255,255,0.93)'; ctx.strokeStyle = '#bfdbfe'; ctx.lineWidth = 1
+      ctx.fillRect(8, 8, 165, 55); ctx.strokeRect(8, 8, 165, 55)
+      ctx.fillStyle = '#1d4ed8'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText(`H = ${waveHeight} cm | T = ${period} s`, 14, 24)
+      ctx.fillText(`P = ρg²H²T/32π`, 14, 40)
+      ctx.fillStyle = '#1e40af'; ctx.font = 'bold 13px JetBrains Mono'
+      ctx.fillText(`${power} kW/m`, 14, 56)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [waveHeight, period, running, power])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>P ∝ H²·T</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Dalga yüksekliği H" min={10} max={100} step={5} value={waveHeight} onChange={setWaveHeight} unit=" cm" />
+        <Ctrl label="Periyot T" min={4} max={16} step={1} value={period} onChange={setPeriod} unit=" s" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--blue)' }}>{power} kW/m</div>
+      </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 35. JEOTERMAl ENERJİ ────────────────────────────────────────
+export function GeothermalEnergy({ kavram = 'Jeotermal Enerji', aciklama }) {
+  const canvasRef = useRef()
+  const [depth, setDepth] = useState(3)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const temp = (15 + depth * 30).toFixed(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Katmanlar
+      const layers = [
+        { y: 0, h: H * 0.15, color: '#86efac', label: 'Yüzey (15°C)' },
+        { y: H * 0.15, h: H * 0.2, color: '#d97706', label: 'Sığ kabuk' },
+        { y: H * 0.35, h: H * 0.2, color: '#b45309', label: 'Derin kabuk' },
+        { y: H * 0.55, h: H * 0.2, color: '#dc2626', label: 'Üst manto' },
+        { y: H * 0.75, h: H * 0.25, color: '#7f1d1d', label: 'Magma' },
+      ]
+      layers.forEach(l => {
+        const grad = ctx.createLinearGradient(0, l.y, 0, l.y + l.h)
+        grad.addColorStop(0, l.color + 'cc'); grad.addColorStop(1, l.color)
+        ctx.fillStyle = grad; ctx.fillRect(0, l.y, W, l.h)
+        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = '10px JetBrains Mono'
+        ctx.textAlign = 'left'; ctx.fillText(l.label, 8, l.y + 16)
+      })
+
+      // Sıcaklık gradyanı göstergesi
+      for (let y = 0; y < H; y++) {
+        const ratio = y / H
+        const temp_y = 15 + ratio * depth * 30 * 3
+        const r = Math.min(255, temp_y * 0.8)
+        ctx.fillStyle = `rgba(${r},${Math.max(0, 120-r/2)},0,0.03)`
+        ctx.fillRect(0, y, W, 1)
+      }
+
+      // Jeotermal kuyu
+      const wellX = W * 0.5
+      const wellDepth = H * (depth / 10)
+      ctx.strokeStyle = '#374151'; ctx.lineWidth = 6
+      ctx.beginPath(); ctx.moveTo(wellX, 0); ctx.lineTo(wellX, wellDepth); ctx.stroke()
+      ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 4
+      ctx.beginPath(); ctx.moveTo(wellX, 0); ctx.lineTo(wellX, wellDepth); ctx.stroke()
+
+      // Su pompası (sıcak su çıkışı)
+      const particleY = wellDepth - (t * 80 % wellDepth)
+      if (particleY > 0) {
+        ctx.beginPath(); ctx.arc(wellX, particleY, 5, 0, Math.PI * 2)
+        ctx.fillStyle = '#ef4444'; ctx.fill()
+      }
+
+      // Yüzey tesisi
+      ctx.fillStyle = '#374151'; ctx.fillRect(wellX - 25, 0, 50, 25)
+      ctx.fillStyle = '#f59e0b'
+      ctx.beginPath(); ctx.moveTo(wellX - 15, 0); ctx.lineTo(wellX, -15); ctx.lineTo(wellX + 15, 0); ctx.closePath(); ctx.fill()
+      ctx.fillStyle = 'white'; ctx.font = 'bold 8px Inter'; ctx.textAlign = 'center'
+      ctx.fillText('⚡', wellX, 16)
+
+      // Buhar çıkışı
+      for (let i = 0; i < 5; i++) {
+        const sx = wellX + Math.sin(t * 2 + i) * 10
+        const sy = -i * 12 - t * 30 % 60
+        ctx.globalAlpha = Math.max(0, 0.6 - i * 0.1)
+        ctx.fillStyle = 'rgba(200,200,200,0.8)'
+        ctx.beginPath(); ctx.arc(sx, sy + 30, 6 + i * 2, 0, Math.PI * 2); ctx.fill()
+        ctx.globalAlpha = 1
+      }
+
+      // Bilgi
+      ctx.fillStyle = 'rgba(255,255,255,0.93)'; ctx.strokeStyle = '#e8e4dc'; ctx.lineWidth = 1
+      ctx.fillRect(W - 155, 8, 145, 65); ctx.strokeRect(W - 155, 8, 145, 65)
+      ctx.fillStyle = '#374151'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'left'
+      ctx.fillText(`Derinlik: ${depth} km`, W - 148, 26)
+      ctx.fillText(`Sıcaklık: ${temp}°C`, W - 148, 42)
+      ctx.fillStyle = '#ef4444'; ctx.font = 'bold 13px JetBrains Mono'
+      ctx.fillText(`${(depth * 15).toFixed(0)} kW/km²`, W - 148, 62)
+
+      if (running) { tRef.current += 0.016; rafRef.current = requestAnimationFrame(draw) }
+    }
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [depth, running, temp])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>3°C / 100m</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{ ...S.canvas, width: '100%' }} />
+      <div style={S.controls}>
+        <Ctrl label="Kuyu derinliği" min={1} max={10} step={0.5} value={depth} onChange={setDepth} unit=" km" />
+        <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--red)' }}>{temp}°C</div>
       </div>
       {aciklama && <div style={S.desc}>{aciklama}</div>}
     </div>
