@@ -1242,10 +1242,139 @@ const KEYWORD_MAP = [
   { keys: ['jeotermal', 'jeotermal enerji', 'yeraltı ısısı'], Component: GeothermalEnergy },
 ]
 
+// Tüm şablon adları → AI'a liste olarak göndermek için
+const TEMPLATE_LIST = [
+  { id: 'BHMSpring', label: 'Basit Harmonik Hareket (yay-kütle)', keys: ['harmonik', 'yay', 'osilatör', 'titreşim'] },
+  { id: 'Pendulum', label: 'Sarkaç', keys: ['sarkaç', 'pendulum'] },
+  { id: 'WaveSuperposition', label: 'Dalga Süperpozisyonu', keys: ['dalga süperpozisyon', 'girişim'] },
+  { id: 'FourierSeries', label: 'Fourier Serisi', keys: ['fourier'] },
+  { id: 'AtomModel', label: 'Atom Modeli (Bohr)', keys: ['atom', 'elektron yörünge'] },
+  { id: 'DNAHelix', label: 'DNA Sarmalı', keys: ['dna', 'sarmal'] },
+  { id: 'FunctionPlotter', label: 'Fonksiyon Grafiği', keys: ['fonksiyon', 'trigonometri'] },
+  { id: 'VectorField', label: 'Vektör Alanı', keys: ['vektör alanı'] },
+  { id: 'Kinematics', label: 'Kinematik (Mertebe Atışı)', keys: ['kinematik', 'atış', 'parabol'] },
+  { id: 'OhmCircuit', label: 'Ohm Yasası Devresi', keys: ['ohm', 'devre', 'akım'] },
+  { id: 'TreePhotosynthesis', label: 'Fotosentez', keys: ['fotosentez', 'bitki'] },
+  { id: 'SolarPanel', label: 'Güneş Paneli', keys: ['güneş panel', 'solar'] },
+  { id: 'WindTurbine', label: 'Rüzgar Türbini', keys: ['rüzgar türbin'] },
+  { id: 'WaterHydro', label: 'Hidroelektrik / Su Döngüsü', keys: ['hidroelektrik', 'baraj'] },
+  { id: 'CellDivision', label: 'Mitoz / Hücre Bölünmesi', keys: ['mitoz', 'hücre bölünme'] },
+  { id: 'BloodCirculation', label: 'Kan Dolaşımı', keys: ['kan dolaşım', 'kalp dolaşım'] },
+  { id: 'LensRefraction', label: 'Lens ve Işık Kırılması', keys: ['lens', 'mercek', 'optik'] },
+  { id: 'Collision', label: 'Çarpışma / Momentum', keys: ['çarpışma', 'momentum'] },
+  { id: 'Derivative', label: 'Türev (Geometrik Anlam)', keys: ['türev', 'teğet'] },
+  { id: 'GreenhouseEffect', label: 'Sera Etkisi', keys: ['sera etkisi', 'küresel ısınma'] },
+  { id: 'NuclearFission', label: 'Nükleer Fisyon', keys: ['fisyon', 'nükleer'] },
+  { id: 'EMWave', label: 'Elektromanyetik Dalga', keys: ['elektromanyetik dalga'] },
+  { id: 'MagneticField', label: 'Manyetik Alan', keys: ['manyetik alan', 'mıknatıs'] },
+  { id: 'ActionPotential', label: 'Aksiyon Potansiyeli / Sinir İletimi', keys: ['aksiyon potansiyeli', 'sinir'] },
+  { id: 'GasMolecules', label: 'İdeal Gaz / Kinetik Teori', keys: ['ideal gaz', 'kinetik teori'] },
+  { id: 'DopplerEffect', label: 'Doppler Etkisi', keys: ['doppler'] },
+  { id: 'PeriodicTable', label: 'Periyodik Tablo', keys: ['periyodik tablo', 'element'] },
+  { id: 'Titration', label: 'Asit-Baz Titrasyonu', keys: ['titrasyon', 'asit baz'] },
+  { id: 'LotkaVolterra', label: 'Av-Avcı Dengesi (Lotka-Volterra)', keys: ['av avcı', 'ekosistem'] },
+  { id: 'RiemannIntegral', label: 'İntegral / Riemann Toplamı', keys: ['integral', 'riemann'] },
+  { id: 'SolarSystem', label: 'Güneş Sistemi', keys: ['güneş sistemi', 'gezegen'] },
+  { id: 'MatrixTransform', label: 'Matris Dönüşümleri', keys: ['matris dönüşüm'] },
+  { id: 'PlateTectonics', label: 'Levha Tektoniği', keys: ['levha tektoniği', 'fay'] },
+  { id: 'OceanWave', label: 'Dalga Enerjisi (Okyanus)', keys: ['dalga enerjisi', 'okyanus'] },
+  { id: 'GeothermalEnergy', label: 'Jeotermal Enerji', keys: ['jeotermal'] },
+]
+
+const COMPONENT_MAP = {
+  BHMSpring, Pendulum, WaveSuperposition, FourierSeries, AtomModel, DNAHelix,
+  FunctionPlotter, VectorField, Kinematics, OhmCircuit, TreePhotosynthesis,
+  SolarPanel, WindTurbine, WaterHydro, CellDivision, BloodCirculation,
+  LensRefraction, Collision, Derivative, GreenhouseEffect, NuclearFission,
+  EMWave, MagneticField, ActionPotential, GasMolecules, DopplerEffect,
+  PeriodicTable, Titration, LotkaVolterra, RiemannIntegral, SolarSystem,
+  MatrixTransform, PlateTectonics, OceanWave, GeothermalEnergy,
+}
+
+async function aiSelectTemplate(kavram, aciklama) {
+  const templateNames = TEMPLATE_LIST.map(t => `${t.id}: ${t.label}`).join('\n')
+  const prompt = `Aşağıdaki eğitim kavramı için en uygun görselleştirme şablonunu seç.
+
+Kavram: ${kavram}
+Açıklama: ${aciklama?.slice(0, 300) || ''}
+
+Mevcut şablonlar:
+${templateNames}
+
+SADECE şablon ID'sini döndür (örn: AtomModel). Başka hiçbir şey yazma.
+Eğer hiçbiri uygun değilse: NONE`
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 50,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    })
+    const data = await res.json()
+    const text = data.content?.[0]?.text?.trim() || 'NONE'
+    return text === 'NONE' ? null : text
+  } catch {
+    return null
+  }
+}
+
 export function AutoViz({ kavram = '', aciklama = '' }) {
-  const lower = kavram.toLowerCase()
-  const match = KEYWORD_MAP.find(m => m.keys.some(k => lower.includes(k)))
-  const Component = match?.Component || BHMSpring
+  const [Component, setComponent] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [noMatch, setNoMatch] = useState(false)
+
+  useEffect(() => {
+    if (!kavram) { setLoading(false); setNoMatch(true); return }
+
+    // Önce hızlı keyword eşleşmesi dene
+    const lower = kavram.toLowerCase()
+    const kwMatch = KEYWORD_MAP.find(m => m.keys.some(k => lower.includes(k)))
+    if (kwMatch) {
+      setComponent(() => kwMatch.Component)
+      setLoading(false)
+      return
+    }
+
+    // Keyword eşleşmesi yoksa AI'a sor
+    setLoading(true)
+    aiSelectTemplate(kavram, aciklama).then(templateId => {
+      if (templateId && COMPONENT_MAP[templateId]) {
+        setComponent(() => COMPONENT_MAP[templateId])
+        setNoMatch(false)
+      } else {
+        setNoMatch(true)
+      }
+      setLoading(false)
+    })
+  }, [kavram, aciklama])
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '2rem', color: 'var(--ink3)', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {[0,1,2].map(i => (
+          <div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', animation: 'dotBounce 1.2s infinite', animationDelay: `${i*0.2}s` }} />
+        ))}
+      </div>
+      <span style={{ fontSize: '0.88rem' }}>En uygun şablon seçiliyor...</span>
+    </div>
+  )
+
+  if (noMatch) return (
+    <div style={{ padding: '2rem', textAlign: 'center', border: '2px dashed var(--border)', borderRadius: '12px' }}>
+      <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🔍</div>
+      <div style={{ fontSize: '0.9rem', color: 'var(--ink2)', marginBottom: '0.5rem' }}>
+        Bu kavram için uygun şablon bulunamadı
+      </div>
+      <div style={{ fontSize: '0.82rem', color: 'var(--ink3)' }}>
+        <b>🖼️ Imagen 4</b> ile görsel üretmeyi ya da <b>🤖 AI Kod</b> modunu dene
+      </div>
+    </div>
+  )
+
   return <Component kavram={kavram} aciklama={aciklama} />
 }
 
