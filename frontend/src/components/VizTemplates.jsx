@@ -1240,6 +1240,7 @@ const KEYWORD_MAP = [
   { keys: ['levha tektoniği', 'kıta kayması', 'subdüksiyon', 'fay'], Component: PlateTectonics },
   { keys: ['dalga enerjisi', 'okyanus dalgası', 'dalga gücü'], Component: OceanWave },
   { keys: ['jeotermal', 'jeotermal enerji', 'yeraltı ısısı'], Component: GeothermalEnergy },
+  { keys: ['ayıraç', 'lugol', 'benedict', 'biüret', 'ninhidrin', 'organik molekül ayıraç', 'sudan boyası'], Component: OrganicIndicators },
 ]
 
 // Tüm şablon adları → AI'a liste olarak göndermek için
@@ -1279,6 +1280,7 @@ const TEMPLATE_LIST = [
   { id: 'PlateTectonics', label: 'Levha Tektoniği', keys: ['levha tektoniği', 'fay'] },
   { id: 'OceanWave', label: 'Dalga Enerjisi (Okyanus)', keys: ['dalga enerjisi', 'okyanus'] },
   { id: 'GeothermalEnergy', label: 'Jeotermal Enerji', keys: ['jeotermal'] },
+  { id: 'OrganicIndicators', label: 'Organik Moleküllerin Ayıraçları', keys: ['ayıraç', 'lugol', 'benedict', 'biüret', 'ninhidrin', 'fehling', 'sudan', 'organik molekül ayıraç'] },
 ]
 
 const COMPONENT_MAP = {
@@ -1288,7 +1290,7 @@ const COMPONENT_MAP = {
   LensRefraction, Collision, Derivative, GreenhouseEffect, NuclearFission,
   EMWave, MagneticField, ActionPotential, GasMolecules, DopplerEffect,
   PeriodicTable, Titration, LotkaVolterra, RiemannIntegral, SolarSystem,
-  MatrixTransform, PlateTectonics, OceanWave, GeothermalEnergy,
+  MatrixTransform, PlateTectonics, OceanWave, GeothermalEnergy, OrganicIndicators,
 }
 
 async function aiSelectTemplate(kavram, aciklama) {
@@ -4400,6 +4402,316 @@ export function GeothermalEnergy({ kavram = 'Jeotermal Enerji', aciklama }) {
         <button style={S.btn} onClick={() => setRunning(r => !r)}>{running ? '⏸' : '▶'}</button>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--red)' }}>{temp}°C</div>
       </div>
+      {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 36. ORGANİK MOLEKÜLLERİN AYIRAÇLARI ────────────────────────
+export function OrganicIndicators({ kavram = 'Organik Moleküllerin Ayıraçları', aciklama }) {
+  const [selected, setSelected] = useState(null)
+  const [testMode, setTestMode] = useState(false)
+  const [answer, setAnswer] = useState(null)
+  const [showResult, setShowResult] = useState(false)
+  const [score, setScore] = useState({ correct: 0, total: 0 })
+  const [quizMolecule, setQuizMolecule] = useState(null)
+  const [quizOptions, setQuizOptions] = useState([])
+  const canvasRef = useRef()
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const data = [
+    { molekul: 'Nişasta', ayirac: 'İyot çözeltisi (Lugol)', renk: '#4a1a7a', renkAdi: 'Mavi-mor', emoji: '🔵', kategori: 'Karbonhidrat' },
+    { molekul: 'Glikojen', ayirac: 'İyot çözeltisi (Lugol)', renk: '#8B4513', renkAdi: 'Kahverengi-kırmızı', emoji: '🟤', kategori: 'Karbonhidrat' },
+    { molekul: 'Selüloz', ayirac: 'İyotlu çinko klorür', renk: '#7ec8c8', renkAdi: 'Açık mavi veya yeşil', emoji: '🩵', kategori: 'Karbonhidrat' },
+    { molekul: 'Glikoz / Fruktoz', ayirac: 'Benedict çözeltisi', renk: '#c0392b', renkAdi: 'Kiremit kırmızısı', emoji: '🔴', kategori: 'Karbonhidrat' },
+    { molekul: 'Glikoz / Fruktoz', ayirac: 'Fehling çözeltisi', renk: '#e07b39', renkAdi: 'Kiremit kırmızısı / Turuncu', emoji: '🟠', kategori: 'Karbonhidrat' },
+    { molekul: 'Monosakkaritler', ayirac: 'Barfoed reaktifi', renk: '#c0392b', renkAdi: 'Kırmızı', emoji: '🔴', kategori: 'Karbonhidrat' },
+    { molekul: 'Amino asitler', ayirac: 'Ninhidrin reaktifi', renk: '#8B008B', renkAdi: 'Sarı veya mor', emoji: '🟣', kategori: 'Protein' },
+    { molekul: 'Proteinler', ayirac: 'Nitrik asit', renk: '#DAA520', renkAdi: 'Sarı', emoji: '🟡', kategori: 'Protein' },
+    { molekul: 'Proteinler', ayirac: 'Fehling çözeltisi', renk: '#7B2D8B', renkAdi: 'Menekşe rengi', emoji: '🟣', kategori: 'Protein' },
+    { molekul: 'Proteinler', ayirac: 'Biüret reaktifi', renk: '#6a0dad', renkAdi: 'Açık mavi veya mor', emoji: '🔵', kategori: 'Protein' },
+    { molekul: 'Proteinler', ayirac: 'Commasie mavisi G-250', renk: '#1a5276', renkAdi: 'Mavi', emoji: '🔵', kategori: 'Protein' },
+    { molekul: 'Yağlar', ayirac: 'Sudan III ve Sudan IV', renk: '#e74c3c', renkAdi: 'Kırmızı veya turuncu', emoji: '🔴', kategori: 'Yağ' },
+    { molekul: 'Yağlar', ayirac: 'Sudan kırmızısı', renk: '#c0392b', renkAdi: 'Kırmızı', emoji: '🔴', kategori: 'Yağ' },
+    { molekul: 'Doymamış yağlar', ayirac: 'Osmik asit', renk: '#1a1a1a', renkAdi: 'Siyah veya koyu kahverengi', emoji: '⚫', kategori: 'Yağ' },
+  ]
+
+  const kategoriler = ['Hepsi', 'Karbonhidrat', 'Protein', 'Yağ']
+  const [kategori, setKategori] = useState('Hepsi')
+  const filtered = kategori === 'Hepsi' ? data : data.filter(d => d.kategori === kategori)
+
+  const katRenk = { Karbonhidrat: '#3d5af1', Protein: '#0f7a5a', Yağ: '#b45309' }
+  const katBg = { Karbonhidrat: '#eef0fe', Protein: '#ecfdf5', Yağ: '#fffbeb' }
+
+  // Deney tüpü canvas animasyonu
+  useEffect(() => {
+    if (!selected) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+
+      // Deney tüpü şekli
+      const tx = W / 2, ty = 30, tw = 60, th = 160
+
+      // Tüp gövdesi
+      ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.moveTo(tx - tw/2, ty)
+      ctx.lineTo(tx - tw/2, ty + th)
+      ctx.arc(tx, ty + th, tw/2, Math.PI, 0)
+      ctx.lineTo(tx + tw/2, ty)
+      ctx.stroke()
+
+      // Sıvı dolum animasyonu
+      const fillLevel = Math.min(1, t / 60)
+      const liquidH = th * 0.7 * fillLevel
+      const liquidY = ty + th - liquidH
+
+      if (fillLevel > 0) {
+        ctx.save()
+        ctx.beginPath()
+        ctx.moveTo(tx - tw/2 + 3, liquidY)
+        ctx.lineTo(tx - tw/2 + 3, ty + th)
+        ctx.arc(tx, ty + th, tw/2 - 3, Math.PI, 0)
+        ctx.lineTo(tx + tw/2 - 3, liquidY)
+        ctx.closePath()
+        ctx.clip()
+
+        // Sıvı rengi — başta şeffaf, sonra ayıraç rengi
+        const alpha = fillLevel
+        const hex = selected.renk
+        const r = parseInt(hex.slice(1,3), 16)
+        const g = parseInt(hex.slice(3,5), 16)
+        const b = parseInt(hex.slice(5,7), 16)
+
+        // Dalgalı yüzey
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.85})`
+        ctx.fillRect(tx - tw/2 + 3, liquidY, tw - 6, liquidH + tw/2)
+
+        // Yüzey dalgası
+        ctx.beginPath()
+        for (let x = tx - tw/2 + 3; x <= tx + tw/2 - 3; x++) {
+          const wave = liquidY + Math.sin((x - tx) * 0.2 + t * 0.15) * 3 * fillLevel
+          x === tx - tw/2 + 3 ? ctx.moveTo(x, wave) : ctx.lineTo(x, wave)
+        }
+        ctx.lineTo(tx + tw/2 - 3, liquidY + liquidH)
+        ctx.lineTo(tx - tw/2 + 3, liquidY + liquidH)
+        ctx.closePath()
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.4})`
+        ctx.fill()
+
+        // Kabarcıklar (reaksiyon)
+        if (fillLevel > 0.5) {
+          for (let i = 0; i < 5; i++) {
+            const bx = tx - 20 + i * 10
+            const by = liquidY + liquidH * 0.7 - Math.sin(t * 0.1 + i * 1.2) * liquidH * 0.5
+            if (by > liquidY) {
+              ctx.beginPath(); ctx.arc(bx, by, 3, 0, Math.PI * 2)
+              ctx.fillStyle = `rgba(255,255,255,0.4)`; ctx.fill()
+            }
+          }
+        }
+        ctx.restore()
+      }
+
+      // Tüp üst açıklık
+      ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3
+      ctx.beginPath(); ctx.moveTo(tx - tw/2 - 4, ty); ctx.lineTo(tx + tw/2 + 4, ty); ctx.stroke()
+
+      // Renk etiketi
+      if (fillLevel > 0.3) {
+        ctx.fillStyle = selected.renk
+        ctx.font = 'bold 13px Lora, Georgia, serif'
+        ctx.textAlign = 'center'
+        ctx.fillText(selected.renkAdi, tx, ty + th + 35)
+        ctx.fillStyle = '#6b6560'; ctx.font = '10px JetBrains Mono'
+        ctx.fillText(selected.emoji, tx, ty + th + 52)
+      }
+
+      // Ayıraç adı üstte
+      ctx.fillStyle = '#3d5af1'; ctx.font = 'bold 11px JetBrains Mono'
+      ctx.textAlign = 'center'
+      ctx.fillText(selected.ayirac, tx, ty - 10)
+
+      tRef.current += 1
+      rafRef.current = requestAnimationFrame(draw)
+    }
+    tRef.current = 0
+    rafRef.current = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [selected])
+
+  // Quiz modu
+  function startQuiz() {
+    const idx = Math.floor(Math.random() * data.length)
+    const mol = data[idx]
+    setQuizMolecule(mol)
+    // 4 seçenek
+    const others = data.filter((_, i) => i !== idx)
+    const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 3)
+    const options = [...shuffled, mol].sort(() => Math.random() - 0.5)
+    setQuizOptions(options)
+    setAnswer(null); setShowResult(false)
+  }
+
+  function checkAnswer(opt) {
+    setAnswer(opt)
+    setShowResult(true)
+    setScore(s => ({
+      correct: s.correct + (opt.ayirac === quizMolecule.ayirac ? 1 : 0),
+      total: s.total + 1
+    }))
+  }
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}>
+        <span style={S.title}>{kavram}</span>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button onClick={() => { setTestMode(false); setSelected(null) }}
+            style={{ ...S.btn, background: !testMode ? '#eef0fe' : 'transparent', borderColor: !testMode ? 'var(--accent)' : undefined }}>
+            📋 Tablo
+          </button>
+          <button onClick={() => { setTestMode(true); startQuiz() }}
+            style={{ ...S.btn, background: testMode ? '#eef0fe' : 'transparent', borderColor: testMode ? 'var(--accent)' : undefined }}>
+            🧪 Test Et
+          </button>
+        </div>
+      </div>
+
+      {!testMode ? (
+        <div style={{ display: 'flex', height: '420px' }}>
+          {/* Sol - liste */}
+          <div style={{ width: '340px', borderRight: '1px solid var(--border)', overflow: 'auto', padding: '10px', flexShrink: 0 }}>
+            {/* Kategori filtre */}
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
+              {kategoriler.map(k => (
+                <button key={k} onClick={() => setKategori(k)} style={{
+                  padding: '2px 10px', borderRadius: '100px', fontSize: '0.72rem', cursor: 'pointer',
+                  border: `1px solid ${kategori === k ? (katRenk[k] || 'var(--accent)') : 'var(--border2)'}`,
+                  background: kategori === k ? (katBg[k] || 'var(--accent-light)') : 'transparent',
+                  color: kategori === k ? (katRenk[k] || 'var(--accent)') : 'var(--ink3)',
+                  fontFamily: 'var(--font-mono)',
+                }}>{k}</button>
+              ))}
+            </div>
+            {filtered.map((d, i) => (
+              <div key={i} onClick={() => { setSelected(d); tRef.current = 0 }} style={{
+                padding: '8px 10px', borderRadius: '8px', marginBottom: '4px', cursor: 'pointer',
+                background: selected?.molekul === d.molekul && selected?.ayirac === d.ayirac ? katBg[d.kategori] : 'var(--bg)',
+                border: `1px solid ${selected?.molekul === d.molekul && selected?.ayirac === d.ayirac ? katRenk[d.kategori] : 'var(--border)'}`,
+                transition: 'all 0.15s',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--ink)' }}>{d.molekul}</span>
+                  <span style={{ fontSize: '0.7rem', padding: '1px 7px', borderRadius: '100px', background: katBg[d.kategori], color: katRenk[d.kategori], border: `1px solid ${katRenk[d.kategori]}44`, fontFamily: 'var(--font-mono)' }}>
+                    {d.kategori}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#3d5af1', fontFamily: 'var(--font-mono)' }}>{d.ayirac}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '3px' }}>
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: d.renk, flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--ink3)' }}>{d.renkAdi}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sağ - deney tüpü */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            {!selected ? (
+              <div style={{ textAlign: 'center', color: 'var(--ink3)' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🧪</div>
+                <div style={{ fontSize: '0.9rem' }}>Bir molekül seç, reaksiyonu izle</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--ink)', marginBottom: '2px' }}>{selected.molekul}</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--ink3)', fontFamily: 'var(--font-mono)' }}>+ {selected.ayirac}</div>
+                </div>
+                <canvas ref={canvasRef} width={200} height={230} style={{ background: 'transparent' }} />
+                <div style={{ marginTop: '0.75rem', padding: '8px 16px', borderRadius: '8px', background: katBg[selected.kategori], border: `1px solid ${katRenk[selected.kategori]}44`, textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--ink3)', fontFamily: 'var(--font-mono)', marginBottom: '2px' }}>Sonuç rengi</div>
+                  <div style={{ fontWeight: 600, color: selected.renk, fontSize: '0.95rem' }}>{selected.emoji} {selected.renkAdi}</div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Test modu */
+        <div style={{ padding: '1.5rem', minHeight: '380px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--ink2)' }}>
+              Puan: <span style={{ color: 'var(--green)', fontWeight: 600 }}>{score.correct}</span> / {score.total}
+            </div>
+            <button onClick={() => setScore({ correct: 0, total: 0 })} style={S.btn}>↺ Sıfırla</button>
+          </div>
+
+          {quizMolecule && (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '0.82rem', color: 'var(--ink3)', marginBottom: '0.5rem' }}>Bu molekülün ayıracı hangisidir?</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem', color: 'var(--ink)', marginBottom: '4px' }}>{quizMolecule.molekul}</div>
+                <div style={{ fontSize: '0.75rem', padding: '2px 10px', borderRadius: '100px', display: 'inline-block', background: katBg[quizMolecule.kategori], color: katRenk[quizMolecule.kategori], border: `1px solid ${katRenk[quizMolecule.kategori]}44`, fontFamily: 'var(--font-mono)' }}>
+                  {quizMolecule.kategori}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: '480px', margin: '0 auto' }}>
+                {quizOptions.map((opt, i) => {
+                  let bg = 'var(--surface)', border = 'var(--border2)', color = 'var(--ink)'
+                  if (showResult && answer) {
+                    if (opt.ayirac === quizMolecule.ayirac) { bg = '#ecfdf5'; border = '#a7f3d0'; color = 'var(--green)' }
+                    else if (opt.ayirac === answer.ayirac) { bg = '#fef2f2'; border = '#fecaca'; color = 'var(--red)' }
+                  }
+                  return (
+                    <button key={i} onClick={() => !showResult && checkAnswer(opt)} style={{
+                      padding: '0.75rem 1rem', borderRadius: '8px', border: `1px solid ${border}`,
+                      background: bg, color, cursor: showResult ? 'default' : 'pointer',
+                      fontFamily: 'var(--font-body)', fontSize: '0.9rem', textAlign: 'left',
+                      transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: '8px',
+                    }}>
+                      <span style={{ width: 24, height: 24, borderRadius: '50%', background: opt.renk, flexShrink: 0, display: 'inline-block' }} />
+                      {opt.ayirac}
+                      {showResult && opt.ayirac === quizMolecule.ayirac && <span style={{ marginLeft: 'auto' }}>✓</span>}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {showResult && (
+                <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+                  <div style={{ marginBottom: '0.75rem', fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: answer?.ayirac === quizMolecule.ayirac ? 'var(--green)' : 'var(--red)' }}>
+                    {answer?.ayirac === quizMolecule.ayirac ? '✅ Doğru!' : `❌ Yanlış. Doğrusu: ${quizMolecule.ayirac} → ${quizMolecule.renkAdi}`}
+                  </div>
+                  <button onClick={startQuiz} className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
+                    Sonraki Soru →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Alt özet çizgisi */}
+      <div style={{ padding: '8px 14px', borderTop: '1px solid var(--border)', background: 'var(--surface2)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        {['Karbonhidrat', 'Protein', 'Yağ'].map(k => (
+          <span key={k} style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: katRenk[k] }}>
+            ● {k}: {data.filter(d => d.kategori === k).length} ayıraç
+          </span>
+        ))}
+      </div>
+
       {aciklama && <div style={S.desc}>{aciklama}</div>}
     </div>
   )
