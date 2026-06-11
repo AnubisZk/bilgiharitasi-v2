@@ -1,9 +1,11 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Header
 from services.pdf_service import extract_text_from_pdf, is_valid_pdf
 import os, uuid, json
 from pathlib import Path
 
 router = APIRouter()
+
+UPLOAD_PASSWORD = os.environ.get("UPLOAD_PASSWORD", "zskvlcm")
 
 DATA_DIR = Path(os.environ.get("DATA_DIR", "./data"))
 DATA_DIR.mkdir(exist_ok=True)
@@ -21,7 +23,14 @@ def get_doc(doc_id: str) -> dict | None:
     return next((d for d in load_index() if d["id"] == doc_id), None)
 
 @router.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(
+    file: UploadFile = File(...),
+    x_upload_password: str = Header(default="")
+):
+    # Şifre kontrolü
+    if x_upload_password != UPLOAD_PASSWORD:
+        raise HTTPException(status_code=401, detail="Yükleme şifresi hatalı")
+
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sadece PDF dosyaları desteklenir")
 
@@ -37,11 +46,9 @@ async def upload_document(file: UploadFile = File(...)):
     full_text = "\n\n".join([p["full_text"] for p in pages])
     doc_id = str(uuid.uuid4())
 
-    # PDF'i diske kaydet
     pdf_path = DATA_DIR / f"{doc_id}.pdf"
     pdf_path.write_bytes(pdf_bytes)
 
-    # Meta veriyi JSON index'e kaydet
     doc = {
         "id": doc_id,
         "filename": file.filename,

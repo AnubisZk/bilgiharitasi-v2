@@ -3,10 +3,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 export const supabase = { auth: { getSession: async () => ({ data: { session: null } }) } }
 
 export const api = {
-  async uploadDocument(file) {
+  async uploadDocument(file, password = '') {
     const formData = new FormData()
     formData.append('file', file)
-    const res = await fetch(`${API_URL}/documents/upload`, { method: 'POST', body: formData })
+    const res = await fetch(`${API_URL}/documents/upload`, {
+      method: 'POST',
+      headers: { 'x-upload-password': password },
+      body: formData
+    })
     return res.json()
   },
   async listDocuments() {
@@ -54,3 +58,5 @@ export const api = {
     return res.json()
   },
 }
+// Imagen endpoint doğrudan fetch ile çağrılıyor (ConceptPanel'de)
+// api.js'e ek gerekmez

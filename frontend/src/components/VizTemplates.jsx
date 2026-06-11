@@ -1241,6 +1241,12 @@ const KEYWORD_MAP = [
   { keys: ['dalga enerjisi', 'okyanus dalgası', 'dalga gücü'], Component: OceanWave },
   { keys: ['jeotermal', 'jeotermal enerji', 'yeraltı ısısı'], Component: GeothermalEnergy },
   { keys: ['ayıraç', 'lugol', 'benedict', 'biüret', 'ninhidrin', 'organik molekül ayıraç', 'sudan boyası'], Component: OrganicIndicators },
+  { keys: ['limit yaklaşım', 'limit fonksiyon', 'epsilon delta'], Component: LimitApproach },
+  { keys: ['birim çember', 'trigonometri çember', 'sin cos tan çember'], Component: UnitCircle },
+  { keys: ['normal dağılım', 'gauss dağılımı', 'standart sapma dağılım'], Component: NormalDistribution },
+  { keys: ['polar koordinat', 'polar eğri', 'kardiyoit', 'r=f(θ)'], Component: PolarCoordinates },
+  { keys: ['eğim alanı', 'slope field', 'diferansiyel denklem görsel'], Component: SlopeField },
+  { keys: ['seri yakınsama', 'dizi yakınsama', 'kısmi toplam'], Component: SequenceSeries },
 ]
 
 // Tüm şablon adları → AI'a liste olarak göndermek için
@@ -1291,6 +1297,7 @@ const COMPONENT_MAP = {
   EMWave, MagneticField, ActionPotential, GasMolecules, DopplerEffect,
   PeriodicTable, Titration, LotkaVolterra, RiemannIntegral, SolarSystem,
   MatrixTransform, PlateTectonics, OceanWave, GeothermalEnergy, OrganicIndicators,
+  LimitApproach, UnitCircle, NormalDistribution, PolarCoordinates, SlopeField, SequenceSeries,
 }
 
 async function aiSelectTemplate(kavram, aciklama) {
@@ -4713,6 +4720,473 @@ export function OrganicIndicators({ kavram = 'Organik Moleküllerin Ayıraçlar�
       </div>
 
       {aciklama && <div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 37. LİMİT YAKLAŞIM ──────────────────────────────────────────
+export function LimitApproach({ kavram = 'Limit', aciklama }) {
+  const canvasRef = useRef()
+  const [funcIdx, setFuncIdx] = useState(0)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const funcs = [
+    { label: '(x²-4)/(x-2)', fn: x => Math.abs(x-2)<0.001 ? 4 : (x*x-4)/(x-2), limit: 4, target: 2 },
+    { label: 'sin(x)/x', fn: x => Math.abs(x)<0.001 ? 1 : Math.sin(x)/x, limit: 1, target: 0 },
+    { label: 'x·sin(1/x)', fn: x => Math.abs(x)<0.0001 ? 0 : x*Math.sin(1/x), limit: 0, target: 0 },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W/2, cy = H/2, scale = 60
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = '#fafaf8'; ctx.fillRect(0, 0, W, H)
+      const t = tRef.current
+      const f = funcs[funcIdx]
+
+      for (let x = cx % scale; x < W; x += scale) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.strokeStyle='#e8e4dc'; ctx.lineWidth=1; ctx.stroke() }
+      for (let y = cy % scale; y < H; y += scale) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.strokeStyle='#e8e4dc'; ctx.lineWidth=1; ctx.stroke() }
+      ctx.strokeStyle='#a09990'; ctx.lineWidth=1.5
+      ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke()
+
+      ctx.strokeStyle='#3d5af1'; ctx.lineWidth=2.5
+      ctx.beginPath()
+      let first=true
+      for (let px=0; px<W; px++) {
+        const x=(px-cx)/scale
+        if (Math.abs(x-f.target)<0.05) { first=true; continue }
+        const y=f.fn(x)
+        if (!isFinite(y)||Math.abs(y)>4) { first=true; continue }
+        const py=cy-y*scale
+        first?ctx.moveTo(px,py):ctx.lineTo(px,py); first=false
+      }
+      ctx.stroke()
+
+      const eps=Math.max(0.08, 2*(1-Math.min(1,t/100)))
+      ;[-1,1].forEach(dir=>{
+        const xA=f.target+dir*eps, yA=f.fn(xA)
+        if (!isFinite(yA)) return
+        const px=cx+xA*scale, py=cy-yA*scale
+        ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2)
+        ctx.fillStyle=dir>0?'#ef4444':'#10b981'; ctx.fill()
+        ctx.strokeStyle=dir>0?'#fca5a5':'#6ee7b7'; ctx.lineWidth=1; ctx.setLineDash([4,6])
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,cy); ctx.stroke()
+        ctx.setLineDash([])
+      })
+
+      const lpx=cx+f.target*scale, lpy=cy-f.limit*scale
+      ctx.beginPath(); ctx.arc(lpx,lpy,7,0,Math.PI*2)
+      ctx.fillStyle='white'; ctx.fill(); ctx.strokeStyle='#3d5af1'; ctx.lineWidth=2; ctx.stroke()
+      ctx.strokeStyle='#fcd34d'; ctx.lineWidth=1; ctx.setLineDash([6,8])
+      ctx.beginPath(); ctx.moveTo(0,lpy); ctx.lineTo(W,lpy); ctx.stroke(); ctx.setLineDash([])
+
+      ctx.fillStyle='rgba(247,245,240,0.95)'; ctx.strokeStyle='#e8e4dc'; ctx.lineWidth=1
+      ctx.fillRect(6,6,195,50); ctx.strokeRect(6,6,195,50)
+      ctx.fillStyle='#3d5af1'; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='left'
+      ctx.fillText(`f(x) = ${f.label}`, 12, 22)
+      ctx.fillStyle='#0f7a5a'; ctx.fillText(`lim = ${f.limit.toFixed(4)}  x→${f.target}`, 12, 38)
+      ctx.fillStyle='#6b6560'; ctx.font='9px JetBrains Mono'; ctx.fillText(`ε = ${eps.toFixed(3)}`, 12, 52)
+
+      if (running) { tRef.current+=0.5; if(tRef.current>200)tRef.current=0; rafRef.current=requestAnimationFrame(draw) }
+    }
+    tRef.current=0; rafRef.current=requestAnimationFrame(draw)
+    return ()=>cancelAnimationFrame(rafRef.current)
+  }, [funcIdx, running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>lim f(x)</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <div><div style={S.label}>Fonksiyon</div>
+          <select value={funcIdx} onChange={e=>{setFuncIdx(+e.target.value);tRef.current=0}} style={{padding:'4px 8px',border:'1px solid #c7cdfa',borderRadius:'6px',background:'#eef0fe',color:'#3d5af1',fontFamily:'inherit',fontSize:'0.78rem'}}>
+            {funcs.map((f,i)=><option key={i} value={i}>{f.label}</option>)}
+          </select>
+        </div>
+        <button style={S.btn} onClick={()=>setRunning(r=>!r)}>{running?'⏸':'▶'}</button>
+        <button style={S.btn} onClick={()=>{tRef.current=0}}>↺</button>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 38. BİRİM ÇEMBERİ ───────────────────────────────────────────
+export function UnitCircle({ kavram = 'Trigonometri — Birim Çemberi', aciklama }) {
+  const canvasRef = useRef()
+  const [speed, setSpeed] = useState(0.5)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W*0.38, cy = H/2, r = 105
+
+    function draw() {
+      ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,W,H)
+      const t = tRef.current
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.strokeStyle='#d4cfc8'; ctx.lineWidth=1.5; ctx.stroke()
+      ctx.strokeStyle='#a09990'; ctx.lineWidth=1.5
+      ctx.beginPath(); ctx.moveTo(cx-r-20,cy); ctx.lineTo(cx+r+20,cy); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(cx,cy-r-20); ctx.lineTo(cx,cy+r+20); ctx.stroke()
+
+      const px=cx+r*Math.cos(t), py=cy-r*Math.sin(t)
+      const sinV=Math.sin(t), cosV=Math.cos(t)
+
+      ctx.strokeStyle='#6366f1'; ctx.lineWidth=2.5
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke()
+      ctx.strokeStyle='#ef4444'; ctx.lineWidth=2
+      ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke()
+      ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke()
+
+      ctx.shadowColor='#6366f1'; ctx.shadowBlur=10
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2); ctx.fillStyle='#6366f1'; ctx.fill()
+      ctx.shadowBlur=0
+
+      ctx.beginPath(); ctx.arc(cx,cy,24,-t,0,t<0); ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2; ctx.stroke()
+      ctx.fillStyle='#b45309'; ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='left'
+      ctx.fillText(`θ=${(t*180/Math.PI%360+360).toFixed(0)}°`, cx+28, cy-5)
+
+      const gx=W*0.67, gw=W*0.3
+      ;[{l:'sin θ',v:sinV,c:'#ef4444',y:cy-80},{l:'cos θ',v:cosV,c:'#3b82f6',y:cy},{l:'tan θ',v:Math.abs(cosV)>0.01?sinV/cosV:null,c:'#10b981',y:cy+80}].forEach(({l,v,c,y})=>{
+        if(v===null) return
+        const cl=Math.max(-1,Math.min(1,v))
+        ctx.fillStyle='#f7f5f0'; ctx.strokeStyle='#e8e4dc'; ctx.lineWidth=1
+        ctx.fillRect(gx,y-17,gw,34); ctx.strokeRect(gx,y-17,gw,34)
+        ctx.fillStyle=c; ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='left'
+        ctx.fillText(l,gx+5,y+4)
+        const bx=gx+48, bw=gw-56
+        ctx.fillStyle='#e8e4dc'; ctx.fillRect(bx,y-5,bw,10)
+        ctx.fillStyle=c
+        if(cl>=0) ctx.fillRect(bx+bw/2,y-5,cl*bw/2,10); else ctx.fillRect(bx+bw/2+cl*bw/2,y-5,-cl*bw/2,10)
+        ctx.fillStyle=c; ctx.font='bold 9px JetBrains Mono'; ctx.textAlign='right'
+        ctx.fillText(v.toFixed(3),gx+gw-3,y+4)
+      })
+
+      if(running){tRef.current+=speed*0.016; rafRef.current=requestAnimationFrame(draw)}
+    }
+    rafRef.current=requestAnimationFrame(draw)
+    return ()=>cancelAnimationFrame(rafRef.current)
+  },[speed,running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>sin²θ+cos²θ=1</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <Ctrl label="Hız" min={0.1} max={3} value={speed} onChange={setSpeed} unit="x"/>
+        <button style={S.btn} onClick={()=>setRunning(r=>!r)}>{running?'⏸':'▶'}</button>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 39. NORMAL DAĞILIM ───────────────────────────────────────────
+export function NormalDistribution({ kavram = 'Normal Dağılım', aciklama }) {
+  const canvasRef = useRef()
+  const [mu, setMu] = useState(0)
+  const [sigma, setSigma] = useState(1)
+  const [showAreas, setShowAreas] = useState(true)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const gx=40, gy=20, gw=W-60, gh=H-70
+    const xMin=mu-4*sigma, xMax=mu+4*sigma
+    const toX=x=>gx+(x-xMin)/(xMax-xMin)*gw
+    const normal=x=>Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI))
+    const maxY=normal(mu)
+    const toY=y=>gy+gh-(y/maxY)*gh*0.9
+
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,W,H)
+
+    if(showAreas){
+      [[mu-3*sigma,mu+3*sigma,'rgba(61,90,241,0.08)','99.7%',H-52],
+       [mu-2*sigma,mu+2*sigma,'rgba(61,90,241,0.14)','95.4%',H-36],
+       [mu-sigma,  mu+sigma,  'rgba(61,90,241,0.22)','68.3%',H-20],
+      ].forEach(([from,to,color,label,ly])=>{
+        ctx.beginPath(); ctx.moveTo(toX(from),toY(0))
+        for(let x=from;x<=to;x+=(to-from)/200) ctx.lineTo(toX(x),toY(normal(x)))
+        ctx.lineTo(toX(to),toY(0)); ctx.closePath(); ctx.fillStyle=color; ctx.fill()
+        ctx.fillStyle='#3d5af1'; ctx.font='9px JetBrains Mono'; ctx.textAlign='center'
+        ctx.fillText(label,toX((from+to)/2),ly)
+      })
+    }
+
+    ctx.strokeStyle='#3d5af1'; ctx.lineWidth=2.5; ctx.beginPath()
+    for(let i=0;i<=gw;i++){const x=xMin+i/gw*(xMax-xMin); i===0?ctx.moveTo(gx+i,toY(normal(x))):ctx.lineTo(gx+i,toY(normal(x)))}
+    ctx.stroke()
+
+    ctx.strokeStyle='#a09990'; ctx.lineWidth=1.5
+    ctx.beginPath(); ctx.moveTo(gx,toY(0)); ctx.lineTo(gx+gw,toY(0)); ctx.stroke()
+
+    for(let k=-3;k<=3;k++){
+      const px=toX(mu+k*sigma)
+      ctx.strokeStyle=k===0?'#3d5af1':'#d4cfc8'; ctx.lineWidth=k===0?1.5:1
+      ctx.setLineDash(k===0?[]:[4,6]); ctx.beginPath(); ctx.moveTo(px,gy); ctx.lineTo(px,toY(0)); ctx.stroke(); ctx.setLineDash([])
+      ctx.fillStyle='#6b6560'; ctx.font='9px JetBrains Mono'; ctx.textAlign='center'
+      ctx.fillText(k===0?'μ':`${k>0?'+':''}${k}σ`,px,toY(0)+14)
+    }
+
+    ctx.fillStyle='rgba(247,245,240,0.95)'; ctx.strokeStyle='#e8e4dc'; ctx.lineWidth=1
+    ctx.fillRect(gx+gw-130,gy+4,125,45); ctx.strokeRect(gx+gw-130,gy+4,125,45)
+    ctx.fillStyle='#3d5af1'; ctx.font='10px JetBrains Mono'; ctx.textAlign='left'
+    ctx.fillText(`μ = ${mu.toFixed(1)}`,gx+gw-124,gy+20)
+    ctx.fillText(`σ = ${sigma.toFixed(1)}`,gx+gw-124,gy+34)
+    ctx.fillText(`σ² = ${(sigma*sigma).toFixed(2)}`,gx+gw-124,gy+48)
+  },[mu,sigma,showAreas])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>N(μ,σ²)</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <Ctrl label="Ortalama μ" min={-3} max={3} step={0.5} value={mu} onChange={setMu} unit=""/>
+        <Ctrl label="Std sapma σ" min={0.3} max={3} step={0.1} value={sigma} onChange={setSigma} unit=""/>
+        <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
+          <input type="checkbox" checked={showAreas} onChange={e=>setShowAreas(e.target.checked)} id="areas"/>
+          <label htmlFor="areas" style={{fontSize:'0.78rem',color:'var(--ink2)',cursor:'pointer'}}>σ bölgeleri</label>
+        </div>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 40. POLAR KOORDİNATLAR ──────────────────────────────────────
+export function PolarCoordinates({ kavram = 'Polar Koordinatlar', aciklama }) {
+  const canvasRef = useRef()
+  const [funcIdx, setFuncIdx] = useState(0)
+  const [running, setRunning] = useState(true)
+  const rafRef = useRef()
+  const tRef = useRef(0)
+
+  const funcs = [
+    { label: 'r=cos(3θ) Yaprak', fn: t => Math.cos(3*t) },
+    { label: 'r=1+cos(θ) Kardiyoit', fn: t => 1+Math.cos(t) },
+    { label: 'r=θ Spiral', fn: t => t/(2*Math.PI) },
+    { label: 'r=cos(2θ) Gül', fn: t => Math.cos(2*t) },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W/2, cy = H/2, sc = 100
+    const f = funcs[funcIdx].fn
+
+    function draw() {
+      ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,W,H)
+      const t = tRef.current
+
+      for(let r=1;r<=2;r++){ctx.beginPath();ctx.arc(cx,cy,r*sc,0,Math.PI*2);ctx.strokeStyle='#e8e4dc';ctx.lineWidth=1;ctx.stroke()}
+      for(let a=0;a<Math.PI*2;a+=Math.PI/6){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*sc*2,cy-Math.sin(a)*sc*2);ctx.strokeStyle='#e8e4dc';ctx.lineWidth=0.8;ctx.stroke()}
+      ctx.strokeStyle='#a09990';ctx.lineWidth=1.5
+      ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke()
+      ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke()
+
+      const maxT=Math.min(t*0.04,4*Math.PI)
+      ctx.strokeStyle='#3d5af1';ctx.lineWidth=2.5;ctx.beginPath()
+      for(let i=0;i<=600;i++){
+        const th=i/600*maxT
+        const r=f(th)*sc
+        const x=cx+r*Math.cos(th), y=cy-r*Math.sin(th)
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)
+      }
+      ctx.stroke()
+
+      if(maxT<4*Math.PI){
+        const r=f(maxT)*sc
+        ctx.beginPath();ctx.arc(cx+r*Math.cos(maxT),cy-r*Math.sin(maxT),6,0,Math.PI*2);ctx.fillStyle='#ef4444';ctx.fill()
+      }
+
+      ctx.fillStyle='#3d5af1';ctx.font='bold 11px JetBrains Mono';ctx.textAlign='left';ctx.fillText(funcs[funcIdx].label,8,20)
+
+      if(running){tRef.current+=1;if(tRef.current>320)tRef.current=0;rafRef.current=requestAnimationFrame(draw)}
+    }
+    tRef.current=0;rafRef.current=requestAnimationFrame(draw)
+    return ()=>cancelAnimationFrame(rafRef.current)
+  },[funcIdx,running])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>r=f(θ)</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <div><div style={S.label}>Eğri</div>
+          <select value={funcIdx} onChange={e=>{setFuncIdx(+e.target.value);tRef.current=0}} style={{padding:'4px 8px',border:'1px solid #c7cdfa',borderRadius:'6px',background:'#eef0fe',color:'#3d5af1',fontFamily:'inherit',fontSize:'0.78rem'}}>
+            {funcs.map((f,i)=><option key={i} value={i}>{f.label}</option>)}
+          </select>
+        </div>
+        <button style={S.btn} onClick={()=>setRunning(r=>!r)}>{running?'⏸':'▶'}</button>
+        <button style={S.btn} onClick={()=>{tRef.current=0}}>↺</button>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 41. DİFERANSİYEL DENKLEM EĞİM ALANI ────────────────────────
+export function SlopeField({ kavram = 'Diferansiyel Denklem — Eğim Alanı', aciklama }) {
+  const canvasRef = useRef()
+  const [funcIdx, setFuncIdx] = useState(0)
+  const [showSolution, setShowSolution] = useState(true)
+
+  const funcs = [
+    { label: "y'=y", fn: (x,y)=>y },
+    { label: "y'=-x/y", fn: (x,y)=>y!==0?-x/y:0 },
+    { label: "y'=x+y", fn: (x,y)=>x+y },
+    { label: "y'=sin(x)", fn: (x,y)=>Math.sin(x) },
+    { label: "y'=x²-y", fn: (x,y)=>x*x-y },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const cx = W/2, cy = H/2, sc = 40
+    const f = funcs[funcIdx].fn
+
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,W,H)
+
+    const step=28
+    for(let px=step/2;px<W;px+=step){
+      for(let py=step/2;py<H;py+=step){
+        const x=(px-cx)/sc, y=-(py-cy)/sc
+        const slope=f(x,y)
+        if(!isFinite(slope)) continue
+        const angle=Math.atan(slope), len=step*0.35
+        const mag=Math.min(1,Math.abs(slope)/3)
+        ctx.strokeStyle=`hsla(${220+mag*80},60%,55%,0.7)`;ctx.lineWidth=1.2
+        ctx.beginPath()
+        ctx.moveTo(px-Math.cos(angle)*len,py-Math.sin(angle)*len)
+        ctx.lineTo(px+Math.cos(angle)*len,py+Math.sin(angle)*len)
+        ctx.stroke()
+      }
+    }
+
+    ctx.strokeStyle='#a09990';ctx.lineWidth=1.5
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke()
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke()
+
+    if(showSolution){
+      [-3,-2,-1,0,1,2,3].forEach(y0=>{
+        ctx.strokeStyle='rgba(239,68,68,0.7)';ctx.lineWidth=1.8;ctx.beginPath()
+        let x=-4, y=y0; ctx.moveTo(cx+x*sc,cy-y*sc)
+        for(let i=0;i<200;i++){
+          const s=f(x,y); if(!isFinite(s)) break
+          y+=s*0.05; x+=0.05
+          const px2=cx+x*sc, py2=cy-y*sc
+          if(px2<0||px2>W||py2<0||py2>H) break
+          ctx.lineTo(px2,py2)
+        }
+        ctx.stroke()
+      })
+    }
+
+    ctx.fillStyle='#3d5af1';ctx.font='bold 12px JetBrains Mono';ctx.textAlign='left';ctx.fillText(funcs[funcIdx].label,8,20)
+  },[funcIdx,showSolution])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>dy/dx=f(x,y)</span></div>
+      <canvas ref={canvasRef} width={600} height={300} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <div><div style={S.label}>Denklem</div>
+          <select value={funcIdx} onChange={e=>setFuncIdx(+e.target.value)} style={{padding:'4px 8px',border:'1px solid #c7cdfa',borderRadius:'6px',background:'#eef0fe',color:'#3d5af1',fontFamily:'inherit',fontSize:'0.78rem'}}>
+            {funcs.map((f,i)=><option key={i} value={i}>{f.label}</option>)}
+          </select>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
+          <input type="checkbox" checked={showSolution} onChange={e=>setShowSolution(e.target.checked)} id="sol"/>
+          <label htmlFor="sol" style={{fontSize:'0.78rem',color:'var(--ink2)',cursor:'pointer'}}>Çözüm eğrileri</label>
+        </div>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
+    </div>
+  )
+}
+
+// ─── 42. DİZİ YAKINSAMA ───────────────────────────────────────────
+export function SequenceSeries({ kavram = 'Dizi ve Seri Yakınsaması', aciklama }) {
+  const canvasRef = useRef()
+  const [seriesIdx, setSeriesIdx] = useState(0)
+  const [nTerms, setNTerms] = useState(15)
+
+  const series = [
+    { label: 'Σ 1/n²  → π²/6', fn: n=>1/(n*n), limit: Math.PI*Math.PI/6 },
+    { label: 'Σ 1/2ⁿ  → 2', fn: n=>1/Math.pow(2,n), limit: 2 },
+    { label: 'Σ (-1)ⁿ/n → ln2', fn: n=>Math.pow(-1,n+1)/n, limit: Math.log(2) },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const W = canvas.width, H = canvas.height
+    const gx=50,gy=20,gw=W-70,gh=H-60
+    const s = series[seriesIdx]
+
+    const partials=[]
+    let sum=0
+    for(let n=1;n<=nTerms;n++){sum+=s.fn(n);partials.push({n,sum})}
+    const allS=partials.map(p=>p.sum)
+    const minS=Math.min(...allS,s.limit)*0.9, maxS=Math.max(...allS,s.limit)*1.15
+    const range=maxS-minS||1
+    const toX=n=>gx+(n-1)/(nTerms-1)*gw
+    const toY=s=>gy+gh-(s-minS)/range*gh
+
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#fafaf8'; ctx.fillRect(0,0,W,H)
+
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=1.5;ctx.setLineDash([6,8])
+    ctx.beginPath();ctx.moveTo(gx,toY(s.limit));ctx.lineTo(gx+gw,toY(s.limit));ctx.stroke();ctx.setLineDash([])
+    ctx.fillStyle='#b45309';ctx.font='bold 10px JetBrains Mono';ctx.textAlign='right'
+    ctx.fillText(`Limit=${s.limit.toFixed(4)}`,gx+gw,toY(s.limit)-5)
+
+    partials.forEach(({n,sum},i)=>{
+      const px=toX(n), py=toY(sum)
+      if(i>0){ctx.strokeStyle='#3d5af1';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(toX(partials[i-1].n),toY(partials[i-1].sum));ctx.lineTo(px,py);ctx.stroke()}
+      ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fillStyle='#3d5af1';ctx.fill()
+      ctx.strokeStyle='rgba(239,68,68,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,toY(s.limit));ctx.stroke()
+    })
+
+    ctx.strokeStyle='#a09990';ctx.lineWidth=1.5
+    ctx.beginPath();ctx.moveTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke()
+    for(let n=1;n<=nTerms;n+=Math.ceil(nTerms/8)){
+      ctx.fillStyle='#6b6560';ctx.font='9px JetBrains Mono';ctx.textAlign='center';ctx.fillText(n,toX(n),gy+gh+14)
+    }
+
+    ctx.fillStyle='#3d5af1';ctx.font='bold 11px JetBrains Mono';ctx.textAlign='left';ctx.fillText(s.label,gx,16)
+    const last=partials[nTerms-1]
+    ctx.fillStyle='#6b6560';ctx.font='9px JetBrains Mono'
+    ctx.fillText(`S${nTerms}=${last?.sum.toFixed(5)}  Hata:${Math.abs((last?.sum||0)-s.limit).toFixed(5)}`,gx,H-8)
+  },[seriesIdx,nTerms])
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.topbar}><span style={S.title}>{kavram}</span><span style={S.badge}>Σaₙ yakınsar</span></div>
+      <canvas ref={canvasRef} width={600} height={280} style={{...S.canvas,width:'100%'}} />
+      <div style={S.controls}>
+        <div><div style={S.label}>Seri</div>
+          <select value={seriesIdx} onChange={e=>setSeriesIdx(+e.target.value)} style={{padding:'4px 8px',border:'1px solid #c7cdfa',borderRadius:'6px',background:'#eef0fe',color:'#3d5af1',fontFamily:'inherit',fontSize:'0.78rem'}}>
+            {series.map((s,i)=><option key={i} value={i}>{s.label}</option>)}
+          </select>
+        </div>
+        <Ctrl label="Terim sayısı n" min={3} max={50} step={1} value={nTerms} onChange={setNTerms} unit=""/>
+      </div>
+      {aciklama&&<div style={S.desc}>{aciklama}</div>}
     </div>
   )
 }
